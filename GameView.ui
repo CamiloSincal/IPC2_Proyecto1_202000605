@@ -20,7 +20,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QTableWidget" name="tableWidget">
+   <widget class="QTableWidget" name="tablero">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -30,10 +30,10 @@
      </rect>
     </property>
     <property name="rowCount">
-     <number>5</number>
+     <number>0</number>
     </property>
     <property name="columnCount">
-     <number>5</number>
+     <number>0</number>
     </property>
     <attribute name="horizontalHeaderCascadingSectionResizes">
      <bool>false</bool>
@@ -59,16 +59,6 @@
     <attribute name="verticalHeaderStretchLastSection">
      <bool>false</bool>
     </attribute>
-    <row/>
-    <row/>
-    <row/>
-    <row/>
-    <row/>
-    <column/>
-    <column/>
-    <column/>
-    <column/>
-    <column/>
    </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
@@ -106,7 +96,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_2">
+   <widget class="QLineEdit" name="Coordenada_Y">
     <property name="geometry">
      <rect>
       <x>490</x>
@@ -207,7 +197,7 @@
      <string>Siguiente Pieza:</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="terminarButton">
     <property name="geometry">
      <rect>
       <x>830</x>

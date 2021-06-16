@@ -1,3 +1,6 @@
+from GameView import *
+from PyQt5.QtGui import * 
+import random
 #Creacion del nodo Principal
 class mainNodo:
     def __init__(self):
@@ -106,8 +109,6 @@ class  nodosEnMatriz:
             aux1X.up = newNode
             newNode.down = aux1X
             
-            
-
         #Movimiento en Y
         varTemporalY = lista.down
         aux2Y = None
@@ -144,34 +145,81 @@ class  nodosEnMatriz:
         
         print(nodosEnX.data)
 
-           
-if __name__=='__main__':
+class figuras:
+    def __init__(self,id):
+        self.id = id
+#Clases para la Interfaz
+class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     lCabeceras = listaCabeceras()
     nodoPrincipal = mainNodo()
     matriz = nodosEnMatriz()
-
-    cabecerasX = input('Canidad de nodos de cabeceras en X: ')
-    for i in range(int(cabecerasX)):
+    pieza = random.randint(1,6)
+    jugador = 1
+    for i in range(7):
         lCabeceras.insertarX(nodoPrincipal,nodosX(i+1))
 
-    cabecereasY = input('Canidad de nodos de cabeceras en Y: ')
-    for i in range(int(cabecereasY)):
+    for i in range(int(10)):
         lCabeceras.insertarY(nodoPrincipal,nodosY(i+1))
+
+    def __init__(self, *args, **kwargs):
+        QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
+        self.setupUi(self)
+        self.tablero.setRowCount(10)
+        self.tablero.setColumnCount(7)
+        self.terminarButton.clicked.connect(self.insertarFigura)
+
+    def insertarFigura(self):
+        posX = int(self.Coordenada_X.text()) - 1
+        posY = int(self.Coordenada_Y.text()) - 1
+        if self.jugador == 1:
+            self.figuras(posX,posY,self.pieza,'yellow')
+            self.jugador = 2
+        else:
+            self.figuras(posX,posY,self.pieza,'red')
+            self.jugador = 1
+        self.pieza = random.randint(1,6)
     
-    posX = input('Ingresar valor para la posicion en X: ')
-    posY = input('Ingresar valor para la posicion en Y: ')
-    val = input('Ingresar valor para guardar: ')
-    matriz.insertar(posX,posY,nodoPrincipal,nodos(val,posX,posY))
-
-    posX = input('Ingresar valor para la posicion en X: ')
-    posY = input('Ingresar valor para la posicion en Y: ')
-    val = input('Ingresar valor para guardar: ')
-    matriz.insertar(posX,posY,nodoPrincipal,nodos(val,posX,posY))
-
-    impX=input('Ingrese el valor para imprimir de la posicion X: ')
-    impY=input('Ingrese el valor para imprimir de la posicion Y: ')
-    matriz.show(impX,impY,nodoPrincipal)
-
-    impX=input('Ingrese el valor para imprimir de la posicion X: ')
-    impY=input('Ingrese el valor para imprimir de la posicion Y: ')
-    matriz.show(impX,impY,nodoPrincipal)
+    def figuras(self,posIX,posIY,idFigura,color):
+        if idFigura == 1:
+            inicio = 0
+            while inicio != 4:
+                self.ingresarPintar(posIX,posIY+inicio," ",color)
+                inicio+=1
+            self.ingresarPintar(posIX+1,posIY+inicio-1," ",color)
+        elif idFigura == 2:
+            inicio = 0
+            while inicio != 4:
+                self.ingresarPintar(posIX+1,posIY+inicio," ",color)
+                inicio+=1
+            self.ingresarPintar(posIX,posIY+inicio-1," ",color)
+        elif idFigura == 3:
+            inicio = 0
+            while inicio != 4:
+                self.ingresarPintar(posIX+inicio,posIY," ",color)
+                inicio+=1
+        elif idFigura == 4:
+            self.ingresarPintar(posIX,posIY," ",color)
+            self.ingresarPintar(posIX+1,posIY," ",color)
+            self.ingresarPintar(posIX+1,posIY+1," ",color)
+            self.ingresarPintar(posIX,posIY+1," ",color)
+        elif idFigura == 5:
+            self.ingresarPintar(posIX+1,posIY," ",color)
+            self.ingresarPintar(posIX+2,posIY," ",color)
+            self.ingresarPintar(posIX,posIY+1," ",color)
+            self.ingresarPintar(posIX+1,posIY+1," ",color)
+            self.ingresarPintar(posIX+2,posIY+1," ",color)
+            self.ingresarPintar(posIX+3,posIY+1," ",color)
+        elif idFigura == 6:
+            inicio = 0
+            while inicio != 5:
+                self.ingresarPintar(posIX,posIY+inicio," ",color)
+                inicio+=1
+    def ingresarPintar(self,posIX,posIY,jugador,color):
+        self.tablero.setItem(posIY, posIX, QtWidgets.QTableWidgetItem(jugador))
+        self.tablero.item(posIY,posIX).setBackground(QtGui.QColor(color))
+if __name__=='__main__':
+    
+    app = QtWidgets.QApplication([])
+    window = MainWindow()
+    window.show()
+    app.exec_()
