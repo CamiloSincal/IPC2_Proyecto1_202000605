@@ -210,6 +210,32 @@
      <string>Terminar Turno</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>830</x>
+      <y>260</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Intentos Restantes:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="numPiezas_2">
+    <property name="geometry">
+     <rect>
+      <x>870</x>
+      <y>280</y>
+      <width>21</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

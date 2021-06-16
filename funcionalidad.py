@@ -106,7 +106,8 @@ class  nodosEnMatriz:
             else:
                 listaX.down = newNode
                 newNode.up = listaX
-            aux1X.up = newNode
+            if aux1X != None:
+                aux1X.up = newNode
             newNode.down = aux1X
             
         #Movimiento en Y
@@ -131,7 +132,8 @@ class  nodosEnMatriz:
             else:
                 listaY.right = newNode
                 newNode.left = listaY
-            aux1Y.left = newNode
+            if aux1Y != None:
+                aux1Y.left = newNode
             newNode.right = aux1Y
     def show(self,posX,posY,lista):
         listaCabeceraX = lista.next
@@ -153,14 +155,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     lCabeceras = listaCabeceras()
     nodoPrincipal = mainNodo()
     matriz = nodosEnMatriz()
-    pieza = random.randint(1,6)
+    pieza = 1
     jugador = 1
     for i in range(7):
         lCabeceras.insertarX(nodoPrincipal,nodosX(i+1))
 
     for i in range(int(10)):
         lCabeceras.insertarY(nodoPrincipal,nodosY(i+1))
-
+    
     def __init__(self, *args, **kwargs):
         QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
         self.setupUi(self)
@@ -172,53 +174,77 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         posX = int(self.Coordenada_X.text()) - 1
         posY = int(self.Coordenada_Y.text()) - 1
         if self.jugador == 1:
-            self.figuras(posX,posY,self.pieza,'yellow')
+            self.figuras(posX,posY,self.pieza,'yellow',self.jugador)
             self.jugador = 2
         else:
-            self.figuras(posX,posY,self.pieza,'red')
+            self.figuras(posX,posY,self.pieza,'red',self.jugador)
             self.jugador = 1
         self.pieza = random.randint(1,6)
     
-    def figuras(self,posIX,posIY,idFigura,color):
+    def figuras(self,posIX,posIY,idFigura,color,jugador):
         if idFigura == 1:
             inicio = 0
             while inicio != 4:
                 self.ingresarPintar(posIX,posIY+inicio," ",color)
+                self.matriz.insertar(posIX+1,posIY+inicio+1,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+inicio+1))
                 inicio+=1
             self.ingresarPintar(posIX+1,posIY+inicio-1," ",color)
+            self.matriz.insertar(posIX+2,posIY+inicio,self.nodoPrincipal,nodos(jugador,posIX+2,posIY+inicio))
         elif idFigura == 2:
             inicio = 0
             while inicio != 4:
                 self.ingresarPintar(posIX+1,posIY+inicio," ",color)
+                self.matriz.insertar(posIX+2,posIY+inicio+1,self.nodoPrincipal,nodos(jugador,posIX+2,posIY+inicio+1))
                 inicio+=1
             self.ingresarPintar(posIX,posIY+inicio-1," ",color)
+            self.matriz.insertar(posIX+1,posIY+inicio,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+inicio))
         elif idFigura == 3:
             inicio = 0
             while inicio != 4:
                 self.ingresarPintar(posIX+inicio,posIY," ",color)
+                self.matriz.insertar(posIX+inicio+1,posIY+1,self.nodoPrincipal,nodos(jugador,posIX+inicio+1,posIY+1))
                 inicio+=1
         elif idFigura == 4:
             self.ingresarPintar(posIX,posIY," ",color)
+            self.matriz.insertar(posIX+1,posIY+1,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+1))
+            
             self.ingresarPintar(posIX+1,posIY," ",color)
+            self.matriz.insertar(posIX+2,posIY+1,self.nodoPrincipal,nodos(jugador,posIX+2,posIY+1))
+
             self.ingresarPintar(posIX+1,posIY+1," ",color)
+            self.matriz.insertar(posIX+2,posIY+2,self.nodoPrincipal,nodos(jugador,posIX+2,posIY+2))
+
             self.ingresarPintar(posIX,posIY+1," ",color)
+            self.matriz.insertar(posIX+1,posIY+2,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+2))
         elif idFigura == 5:
             self.ingresarPintar(posIX+1,posIY," ",color)
+            self.matriz.insertar(posIX+2,posIY+1,self.nodoPrincipal,nodos(jugador,posIX+2,posIY+1))
+
             self.ingresarPintar(posIX+2,posIY," ",color)
+            self.matriz.insertar(posIX+3,posIY+1,self.nodoPrincipal,nodos(jugador,posIX+3,posIY+1))
+
             self.ingresarPintar(posIX,posIY+1," ",color)
+            self.matriz.insertar(posIX+1,posIY+2,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+2))
+
             self.ingresarPintar(posIX+1,posIY+1," ",color)
+            self.matriz.insertar(posIX+2,posIY+2,self.nodoPrincipal,nodos(jugador,posIX+2,posIY+2))
+            
             self.ingresarPintar(posIX+2,posIY+1," ",color)
+            self.matriz.insertar(posIX+3,posIY+2,self.nodoPrincipal,nodos(jugador,posIX+3,posIY+2))
+
             self.ingresarPintar(posIX+3,posIY+1," ",color)
+            self.matriz.insertar(posIX+4,posIY+2,self.nodoPrincipal,nodos(jugador,posIX+3,posIY+2))
         elif idFigura == 6:
             inicio = 0
             while inicio != 5:
                 self.ingresarPintar(posIX,posIY+inicio," ",color)
+                self.matriz.insertar(posIX+1,posIY+inicio+1,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+inicio+1))
                 inicio+=1
+
     def ingresarPintar(self,posIX,posIY,jugador,color):
         self.tablero.setItem(posIY, posIX, QtWidgets.QTableWidgetItem(jugador))
         self.tablero.item(posIY,posIX).setBackground(QtGui.QColor(color))
 if __name__=='__main__':
-    
     app = QtWidgets.QApplication([])
     window = MainWindow()
     window.show()

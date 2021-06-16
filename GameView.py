@@ -67,6 +67,12 @@ class Ui_MainWindow(object):
         self.terminarButton = QtWidgets.QPushButton(self.centralwidget)
         self.terminarButton.setGeometry(QtCore.QRect(830, 500, 91, 41))
         self.terminarButton.setObjectName("terminarButton")
+        self.label_7 = QtWidgets.QLabel(self.centralwidget)
+        self.label_7.setGeometry(QtCore.QRect(830, 260, 101, 20))
+        self.label_7.setObjectName("label_7")
+        self.numPiezas_2 = QtWidgets.QLabel(self.centralwidget)
+        self.numPiezas_2.setGeometry(QtCore.QRect(870, 280, 21, 16))
+        self.numPiezas_2.setObjectName("numPiezas_2")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 949, 21))
@@ -92,6 +98,8 @@ class Ui_MainWindow(object):
         self.numPiezas.setText(_translate("MainWindow", "0"))
         self.label_6.setText(_translate("MainWindow", "Siguiente Pieza:"))
         self.terminarButton.setText(_translate("MainWindow", "Terminar Turno"))
+        self.label_7.setText(_translate("MainWindow", "Intentos Restantes:"))
+        self.numPiezas_2.setText(_translate("MainWindow", "0"))
 
 
 if __name__ == "__main__":
