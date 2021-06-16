@@ -83,37 +83,58 @@ class  nodosEnMatriz:
     def insertar(self,posX,posY,lista,newNode):
         #Movimiento en X
         varTemporalX = lista.next
+        aux2X = None
+        
         while(varTemporalX.posX != int(posX)):
             varTemporalX = varTemporalX.next
-        listaX = varTemporalX.down
-
-        #Insercion en X
-        aux1X = listaX
-        aux2X = aux1X
-
-        while aux1X != None and int(aux1X.posY) < posY:
-            aux2X = aux1X
-            aux1X = aux1X.down
-
-        if aux1X == listaX:
-            listaX = newNode
+        listaX = varTemporalX
+        
+        if listaX.down ==  None:
+            listaX.down = newNode
         else:
-            aux2X.down = newNode
-        newNode.down = aux1X
-        
+            aux1X = listaX.down
+            while(aux1X != None and aux1X.posY < posY):
+                aux2X = aux1X
+                aux1X = aux1X.down
+            if aux2X != None:
+                aux2X.down = newNode
+            else:
+                listaX.down = newNode
+            newNode.down = aux1X
 
+        #Movimiento en Y
+        varTemporalY = lista.down
+        aux2Y = None
+
+        while(varTemporalY.posY != int(posY)):
+            varTemporalY = varTemporalY.down
+        listaY = varTemporalY
+
+        if listaY.right == None:
+            listaY.right = newNode
+        else:
+            aux1Y = listaY.right
+            while aux1Y != None and aux1Y.posX < posX:
+                aux2Y = aux1Y
+                aux1Y = aux1Y.right
+            if aux2Y != None:
+                aux2X.right = newNode
+            else:
+                listaY.right = newNode
+            newNode.right = aux1Y
     def show(self,posX,posY,lista):
-        #Recorrido en X
-        varTemporalX = lista.next
+        listaCabeceraX = lista.next
 
-        while(varTemporalX.posX != int(posX)):
-            varTemporalX = varTemporalX.next
-        nodoEnX = varTemporalX.down
+        while listaCabeceraX.posX != int(posX):
+            listaCabeceraX = listaCabeceraX.next
+        nodosEnX = listaCabeceraX.down
         
-        while(nodoEnX != None):
-            print(nodoEnX.posY)
-            nodoEnX = nodoEnX.down
+        while int(nodosEnX.posY) < int(posY):
+            nodosEnX = nodosEnX.down
         
+        print(nodosEnX.data)
+
+           
 if __name__=='__main__':
     lCabeceras = listaCabeceras()
     nodoPrincipal = mainNodo()
@@ -128,8 +149,19 @@ if __name__=='__main__':
         lCabeceras.insertarY(nodoPrincipal,nodosY(i+1))
     
     posX = input('Ingresar valor para la posicion en X: ')
+    posY = input('Ingresar valor para la posicion en Y: ')
     val = input('Ingresar valor para guardar: ')
-    matriz.insertar(posX,1,nodoPrincipal,nodos(val,posX,1))
+    matriz.insertar(posX,posY,nodoPrincipal,nodos(val,posX,posY))
+
+    posX = input('Ingresar valor para la posicion en X: ')
+    posY = input('Ingresar valor para la posicion en Y: ')
+    val = input('Ingresar valor para guardar: ')
+    matriz.insertar(posX,posY,nodoPrincipal,nodos(val,posX,posY))
 
     impX=input('Ingrese el valor para imprimir de la posicion X: ')
-    matriz.show(impX,0,nodoPrincipal)
+    impY=input('Ingrese el valor para imprimir de la posicion Y: ')
+    matriz.show(impX,impY,nodoPrincipal)
+
+    impX=input('Ingrese el valor para imprimir de la posicion X: ')
+    impY=input('Ingrese el valor para imprimir de la posicion Y: ')
+    matriz.show(impX,impY,nodoPrincipal)
