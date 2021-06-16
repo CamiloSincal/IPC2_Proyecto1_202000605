@@ -227,7 +227,120 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     return False
         else:
             return False
-
+    
+    def sideS(self,posX,posY,lista,jugador):
+        if posX <= self.maxX and posX > 0 and posY > 0 and posY <= self.maxY:
+            aux = lista.next
+            while aux.posX != int(posX):
+                aux = aux.next
+            if aux.down == None:
+                    return True
+            else:
+                aux2 = aux.down
+                while aux2.posY != posY and aux2.down != None:
+                    aux2 = aux2.down
+                if aux2.posY != int(posY):
+                    return True
+                elif aux2.posY == int(posY) and aux2.data != jugador:
+                    return True
+                else:
+                    return False
+        else:
+            return True
+                    
+    def comprobarEsquinas(self,posX,posY,idFigura):
+        var1 = True
+        var2 = True
+        var3 = True
+        var4 = True
+        var5 = True
+        var6 = True
+        var7 = True
+        var8 = True
+        var9 = True
+        var10 = True
+        var11 = True
+        var12 = True
+        if idFigura == 1:
+            var1 = self.sideS(posX,posY-1,self.nodoPrincipal,self.jugador)
+            var2 = self.sideS(posX+1,posY,self.nodoPrincipal,self.jugador)
+            var3 = self.sideS(posX-1,posY,self.nodoPrincipal,self.jugador)
+            var4 = self.sideS(posX+1,posY+1,self.nodoPrincipal,self.jugador)
+            var5 = self.sideS(posX-1,posY+1,self.nodoPrincipal,self.jugador)
+            var6 = self.sideS(posX+1,posY+2,self.nodoPrincipal,self.jugador)
+            var7 = self.sideS(posX-1,posY+2,self.nodoPrincipal,self.jugador)
+            var8 = self.sideS(posX-1,posY+3,self.nodoPrincipal,self.jugador)
+            var9 = self.sideS(posX,posY+4,self.nodoPrincipal,self.jugador)
+            var10 = self.sideS(posX+1,posY+4,self.nodoPrincipal,self.jugador)
+            var11 = self.sideS(posX+2,posY+3,self.nodoPrincipal,self.jugador)
+            if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True and var6 == True and var7 == True and var8 == True and var9 == True and var10 == True and var11 == True:
+                return True
+        elif idFigura == 2:
+            var1 = self.sideS(posX+1,posY-1,self.nodoPrincipal,self.jugador)
+            var2 = self.sideS(posX,posY,self.nodoPrincipal,self.jugador)
+            var3 = self.sideS(posX+2,posY,self.nodoPrincipal,self.jugador)
+            var4 = self.sideS(posX,posY+1,self.nodoPrincipal,self.jugador)
+            var5 = self.sideS(posX+2,posY+1,self.nodoPrincipal,self.jugador)
+            var6 = self.sideS(posX,posY+2,self.nodoPrincipal,self.jugador)
+            var7 = self.sideS(posX+2,posY+2,self.nodoPrincipal,self.jugador)
+            var8 = self.sideS(posX+2,posY+3,self.nodoPrincipal,self.jugador)
+            var9 = self.sideS(posX-1,posY+3,self.nodoPrincipal,self.jugador)
+            var10 = self.sideS(posX,posY+4,self.nodoPrincipal,self.jugador)
+            var11 = self.sideS(posX+1,posY+4,self.nodoPrincipal,self.jugador)
+            if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True and var6 == True and var7 == True and var8 == True and var9 == True and var10 == True and var11 == True :
+                return True
+        elif idFigura == 3:
+            var1 = self.sideS(posX,posY-1,self.nodoPrincipal,self.jugador)
+            var2 = self.sideS(posX,posY+1,self.nodoPrincipal,self.jugador)
+            var3 = self.sideS(posX+1,posY-1,self.nodoPrincipal,self.jugador)
+            var4 = self.sideS(posX+1,posY+1,self.nodoPrincipal,self.jugador)
+            var5 = self.sideS(posX+2,posY-1,self.nodoPrincipal,self.jugador)
+            var6 = self.sideS(posX+2,posY+1,self.nodoPrincipal,self.jugador)
+            var7 = self.sideS(posX+3,posY-1,self.nodoPrincipal,self.jugador)
+            var8 = self.sideS(posX+3,posY+1,self.nodoPrincipal,self.jugador)
+            var9 = self.sideS(posX-1,posY,self.nodoPrincipal,self.jugador)
+            var10 = self.sideS(posX+4,posY,self.nodoPrincipal,self.jugador)
+            if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True and var6 == True and var7 == True and var8 == True and var9 == True and var10 == True:
+                return True
+        elif idFigura == 4:
+            var1 = self.sideS(posX,posY-1,self.nodoPrincipal,self.jugador)
+            var2 = self.sideS(posX-1,posY,self.nodoPrincipal,self.jugador)
+            var3 = self.sideS(posX+1,posY-1,self.nodoPrincipal,self.jugador)
+            var4 = self.sideS(posX+2,posY,self.nodoPrincipal,self.jugador)
+            var5 = self.sideS(posX-1,posY+1,self.nodoPrincipal,self.jugador)
+            var6 = self.sideS(posX,posY+2,self.nodoPrincipal,self.jugador)
+            var7 = self.sideS(posX+1,posY+2,self.nodoPrincipal,self.jugador)
+            var8 = self.sideS(posX+2 ,posY+1,self.nodoPrincipal,self.jugador)
+            if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True and var6 == True and var7 == True and var8 == True:
+                return True
+        elif idFigura == 5:
+            var1 = self.sideS(posX,posY,self.nodoPrincipal,self.jugador)
+            var2 = self.sideS(posX-1,posY+1,self.nodoPrincipal,self.jugador)
+            var3 = self.sideS(posX+1,posY-1,self.nodoPrincipal,self.jugador)
+            var4 = self.sideS(posX+2,posY-1,self.nodoPrincipal,self.jugador)
+            var5 = self.sideS(posX+3,posY,self.nodoPrincipal,self.jugador)
+            var6 = self.sideS(posX,posY+2,self.nodoPrincipal,self.jugador)
+            var7 = self.sideS(posX+1,posY+2,self.nodoPrincipal,self.jugador)
+            var8 = self.sideS(posX+2,posY+2,self.nodoPrincipal,self.jugador)
+            var9 = self.sideS(posX+3,posY+2,self.nodoPrincipal,self.jugador)
+            var9 = self.sideS(posX+4,posY+1,self.nodoPrincipal,self.jugador)
+            if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True and var6 == True and var7 == True and var8 == True and var9:
+                return True
+        elif idFigura == 6:
+            var1 = self.sideS(posX,posY-1,self.nodoPrincipal,self.jugador)
+            var2 = self.sideS(posX-1,posY,self.nodoPrincipal,self.jugador)
+            var3 = self.sideS(posX+1,posY,self.nodoPrincipal,self.jugador)
+            var4 = self.sideS(posX-1,posY+1,self.nodoPrincipal,self.jugador)
+            var5 = self.sideS(posX+1,posY+1,self.nodoPrincipal,self.jugador)
+            var6 = self.sideS(posX-1,posY+2,self.nodoPrincipal,self.jugador)
+            var7 = self.sideS(posX+1,posY+2,self.nodoPrincipal,self.jugador)
+            var8 = self.sideS(posX-1,posY+3,self.nodoPrincipal,self.jugador)
+            var9 = self.sideS(posX+1,posY+3,self.nodoPrincipal,self.jugador)
+            var10 = self.sideS(posX-1,posY+4,self.nodoPrincipal,self.jugador)
+            var11 = self.sideS(posX+1,posY+4,self.nodoPrincipal,self.jugador)
+            var12 = self.sideS(posX,posY+5,self.nodoPrincipal,self.jugador)
+            if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True and var6 == True and var7 == True and var8 == True and var9  and var10 == True and var11  and var12 == True:
+                return True
     def comprobarFigura(self,posX,posY,idFigura):
         var1 = True
         var2 = True
@@ -242,7 +355,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             var4 = self.comprobarEspacio(posX,posY+3,self.nodoPrincipal)
             var5 = self.comprobarEspacio(posX+1,posY+3,self.nodoPrincipal)
             if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True:
-                self.changePlayer = True
                 return True
         elif idFigura == 2:
             var1 = self.comprobarEspacio(posX+1,posY,self.nodoPrincipal)
@@ -251,7 +363,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             var4 = self.comprobarEspacio(posX+1,posY+3,self.nodoPrincipal)
             var5 = self.comprobarEspacio(posX,posY+3,self.nodoPrincipal)
             if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True:
-                self.changePlayer = True
                 return True
         elif idFigura == 3:
             var1 = self.comprobarEspacio(posX,posY,self.nodoPrincipal)
@@ -259,7 +370,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             var3 = self.comprobarEspacio(posX+2,posY,self.nodoPrincipal)
             var4 = self.comprobarEspacio(posX+3,posY,self.nodoPrincipal)
             if var1 == True and var2 == True and var3 == True and var4 == True:
-                self.changePlayer = True
                 return True
         elif idFigura == 4:
             var1 = self.comprobarEspacio(posX,posY,self.nodoPrincipal)
@@ -267,7 +377,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             var3 = self.comprobarEspacio(posX+1,posY,self.nodoPrincipal)
             var4 = self.comprobarEspacio(posX+1,posY+1,self.nodoPrincipal)
             if var1 == True and var2 == True and var3 == True and var4 == True:
-                self.changePlayer = True
                 return True
         elif idFigura == 5:
             var1 = self.comprobarEspacio(posX,posY+1,self.nodoPrincipal)
@@ -277,7 +386,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             var5 = self.comprobarEspacio(posX+2,posY+1,self.nodoPrincipal)
             var6 = self.comprobarEspacio(posX+3,posY+1,self.nodoPrincipal)
             if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True and var6 == True:
-                self.changePlayer = True
                 return True
         elif idFigura == 6:
             var1 = self.comprobarEspacio(posX,posY,self.nodoPrincipal)
@@ -286,41 +394,47 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             var4 = self.comprobarEspacio(posX,posY+3,self.nodoPrincipal)
             var5 = self.comprobarEspacio(posX,posY+4,self.nodoPrincipal)
             if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True:
-                self.changePlayer = True
                 return True
 
     def figuras(self,posIX,posIY,idFigura,color,jugador):
         if idFigura == 1:
             inicio = 0
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
-            if poderIngresar:
+            esquinasC = self.comprobarEsquinas(posIX+1,posIY+1,idFigura)
+            if poderIngresar and esquinasC:
                 while inicio != 4:
                     self.ingresarPintar(posIX,posIY+inicio," ",color)
                     self.matriz.insertar(posIX+1,posIY+inicio+1,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+inicio+1))
                     inicio+=1
                 self.ingresarPintar(posIX+1,posIY+inicio-1," ",color)
                 self.matriz.insertar(posIX+2,posIY+inicio,self.nodoPrincipal,nodos(jugador,posIX+2,posIY+inicio))
+                self.changePlayer = True
         elif idFigura == 2:
             inicio = 0
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
-            if poderIngresar:
+            esquinasC = self.comprobarEsquinas(posIX+1,posIY+1,idFigura)
+            if poderIngresar and esquinasC:
                 while inicio != 4:
                     self.ingresarPintar(posIX+1,posIY+inicio," ",color)
                     self.matriz.insertar(posIX+2,posIY+inicio+1,self.nodoPrincipal,nodos(jugador,posIX+2,posIY+inicio+1))
                     inicio+=1
                 self.ingresarPintar(posIX,posIY+inicio-1," ",color)
                 self.matriz.insertar(posIX+1,posIY+inicio,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+inicio))
+                self.changePlayer = True
         elif idFigura == 3:
             inicio = 0
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
-            if poderIngresar:
+            esquinasC = self.comprobarEsquinas(posIX+1,posIY+1,idFigura)
+            if poderIngresar and esquinasC:
                 while inicio != 4:
                     self.ingresarPintar(posIX+inicio,posIY," ",color)
                     self.matriz.insertar(posIX+inicio+1,posIY+1,self.nodoPrincipal,nodos(jugador,posIX+inicio+1,posIY+1))
                     inicio+=1
+                self.changePlayer = True
         elif idFigura == 4:
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
-            if poderIngresar:
+            esquinasC = self.comprobarEsquinas(posIX+1,posIY+1,idFigura)
+            if poderIngresar and esquinasC:
                 self.ingresarPintar(posIX,posIY," ",color)
                 self.matriz.insertar(posIX+1,posIY+1,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+1))
                 
@@ -332,9 +446,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
                 self.ingresarPintar(posIX,posIY+1," ",color)
                 self.matriz.insertar(posIX+1,posIY+2,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+2))
+                self.changePlayer = True
         elif idFigura == 5:
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
-            if poderIngresar:
+            esquinasC = self.comprobarEsquinas(posIX+1,posIY+1,idFigura)
+            if poderIngresar and esquinasC:
                 self.ingresarPintar(posIX+1,posIY," ",color)
                 self.matriz.insertar(posIX+2,posIY+1,self.nodoPrincipal,nodos(jugador,posIX+2,posIY+1))
 
@@ -352,14 +468,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
                 self.ingresarPintar(posIX+3,posIY+1," ",color)
                 self.matriz.insertar(posIX+4,posIY+2,self.nodoPrincipal,nodos(jugador,posIX+3,posIY+2))
+                self.changePlayer = True
         elif idFigura == 6:
             inicio = 0
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
-            if poderIngresar:
+            esquinasC = self.comprobarEsquinas(posIX+1,posIY+1,idFigura)
+            if poderIngresar and esquinasC:
                 while inicio != 5:
                     self.ingresarPintar(posIX,posIY+inicio," ",color)
                     self.matriz.insertar(posIX+1,posIY+inicio+1,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+inicio+1))
                     inicio+=1
+                self.changePlayer = True
 
     def ingresarPintar(self,posIX,posIY,jugador,color):
         self.tablero.setItem(posIY, posIX, QtWidgets.QTableWidgetItem(jugador))
