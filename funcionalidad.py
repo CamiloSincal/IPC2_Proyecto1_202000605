@@ -91,6 +91,7 @@ class  nodosEnMatriz:
         
         if listaX.down ==  None:
             listaX.down = newNode
+            newNode.up = listaX
         else:
             aux1X = listaX.down
             while(aux1X != None and aux1X.posY < posY):
@@ -98,9 +99,14 @@ class  nodosEnMatriz:
                 aux1X = aux1X.down
             if aux2X != None:
                 aux2X.down = newNode
+                newNode.up = aux2X
             else:
                 listaX.down = newNode
+                newNode.up = listaX
+            aux1X.up = newNode
             newNode.down = aux1X
+            
+            
 
         #Movimiento en Y
         varTemporalY = lista.down
@@ -112,15 +118,19 @@ class  nodosEnMatriz:
 
         if listaY.right == None:
             listaY.right = newNode
+            newNode.left = listaY
         else:
             aux1Y = listaY.right
             while aux1Y != None and aux1Y.posX < posX:
                 aux2Y = aux1Y
                 aux1Y = aux1Y.right
             if aux2Y != None:
-                aux2X.right = newNode
+                aux2Y.right = newNode
+                newNode.left = aux2Y
             else:
                 listaY.right = newNode
+                newNode.left = listaY
+            aux1Y.left = newNode
             newNode.right = aux1Y
     def show(self,posX,posY,lista):
         listaCabeceraX = lista.next
