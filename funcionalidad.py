@@ -1,3 +1,4 @@
+from math import trunc
 from GameView import *
 from PyQt5.QtGui import * 
 import random
@@ -172,10 +173,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     jugador1 = jugador(1,'yellow',True,15,2,"J1")
     jugador2 = jugador(2,'green',False,15,2,"J2")
     #Tiempo
-    tiempo = 10
+    tiempo = 20
     changePlayer = False
     #Continuar juego
     playing = True
+    #Variables que indican que cierta pieza puede seguir colocandose
+    pieza1 = True
+    pieza2 = True
+    pieza3 = True
+    pieza4 = True
+    pieza5 = True
+    pieza6 = True
     for i in range(7):
         lCabeceras.insertarX(nodoPrincipal,nodosX(i+1))
 
@@ -190,13 +198,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.intentos.setText(str(self.jugador2.intentosActuales))
             self.playerName.setText(self.jugador2.alias)
             self.numPiezas.setText(str(self.jugador2.totalPiezas))
-            self.tiempo = 10
+            self.tiempo = 20
         else:
             self.jugador2.enTurno = False
             self.jugador2.intentosActuales = 2
             self.jugador1.enTurno = True
             self.intentos.setText(str(self.jugador1.intentosActuales))
-            self.tiempo = 10
+            self.tiempo = 20
             self.playerName.setText(self.jugador1.alias)
             self.numPiezas.setText(str(self.jugador1.totalPiezas))
             
@@ -216,8 +224,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.playerName.setText(self.jugador1.alias)
         thread = threading.Thread(target=self.temporizador)
         thread2 = threading.Thread(target=self.cambioPorTiempo)
+        thread3 = threading.Thread(target=self.winGame)
+        thread3.start()
         thread.start()
         thread2.start()
+
     def closeEvent(self, event):
         respuesta = QMessageBox.question(self, 'Cerrar Juego', '¿Quieres Salir del juego?',QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if respuesta == QMessageBox.Yes:
@@ -226,7 +237,130 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             event.ignore()
 
-    def temporizador(self):
+    def winGame(self):
+        while self.playing:
+            #Verifico si algún jugador se quedo sin piezas
+            if self.jugador1.totalPiezas == 0 or self.jugador2.totalPiezas == 0:
+                self.playing = False
+            #Verifico si todas las piezas no se pueden colocar para dar fin al juego
+            if self.pieza1 == False and self.pieza2 == False and self.pieza3 == False and self.pieza4 == False and self.pieza5 == False and self.pieza6 == False:
+                self.playing = False
+
+    def comprobarPosibilidad(self):
+        
+        #Verifico si se puede [Pieza 1]
+        for i in range(self.maxX-1):
+            for j in range(self.maxY-3):
+                espacio = self.comprobarFigura(i+1,j+1,1)
+                jugador1P = self.comprobarEsquinas(i+1,j+1,1,self.jugador1.id)
+                jugador2P = self.comprobarEsquinas(i+1,j+1,1,self.jugador2.id)
+                if jugador1P and espacio:
+                    self.pieza1 = True
+                    break
+                elif jugador2P and espacio:
+                    self.pieza1 = True
+                    break
+                else:
+                    self.pieza1 = False
+            else:
+                continue
+            break
+
+        #Verifico si se puede [Pieza 2]
+        for i in range(self.maxX-1):
+            for j in range(self.maxY-3):
+                espacio = self.comprobarFigura(i+1,j+1,2)
+                jugador1P = self.comprobarEsquinas(i+1,j+1,2,self.jugador1.id)
+                jugador2P = self.comprobarEsquinas(i+1,j+1,2,self.jugador2.id)
+                if jugador1P and espacio:
+                    self.pieza2= True
+                    break
+                elif jugador2P and espacio:
+                    self.pieza2 = True
+                    break
+                else:
+                    self.pieza2 = False
+            else:
+                continue
+            break
+        #Verifico si se puede [Pieza 3]
+        for i in range(self.maxX-3):
+            for j in range(self.maxY):
+                espacio = self.comprobarFigura(i+1,j+1,3)
+                jugador1P = self.comprobarEsquinas(i+1,j+1,3,self.jugador1.id)
+                jugador2P = self.comprobarEsquinas(i+1,j+1,3,self.jugador2.id)
+                if jugador1P and espacio:
+                    self.pieza3= True
+                    break
+                elif jugador2P and espacio:
+                    self.pieza3 = True
+                    break
+                else:
+                    self.pieza3 = False
+            else:
+                continue
+            break
+        
+        #Verifico si se puede [Pieza 4]
+        for i in range(self.maxX-1):
+            for j in range(self.maxY-1):
+                espacio = self.comprobarFigura(i+1,j+1,4)
+                jugador1P = self.comprobarEsquinas(i+1,j+1,4,self.jugador1.id)
+                jugador2P = self.comprobarEsquinas(i+1,j+1,4,self.jugador2.id)
+                if jugador1P and espacio:
+                    self.pieza4= True
+                    break
+                elif jugador2P and espacio:
+                    self.pieza4 = True
+                    break
+                else:
+                    self.pieza4 = False
+            else:
+                continue
+            break
+        
+        #Verifico si se puede [Pieza 5]
+        for i in range(self.maxX-3):
+            for j in range(self.maxY-1):
+                espacio = self.comprobarFigura(i+1,j+1,5)
+                jugador1P = self.comprobarEsquinas(i+1,j+1,5,self.jugador1.id)
+                jugador2P = self.comprobarEsquinas(i+1,j+1,5,self.jugador2.id)
+                if jugador1P and espacio:
+                    self.pieza5= True
+                    break
+                elif jugador2P and espacio:
+                    self.pieza5 = True
+                    break
+                else:
+                    self.pieza5 = False
+            else:
+                continue
+            break
+
+        #Verifico si se puede [Pieza 6]
+        for i in range(self.maxX):
+            for j in range(self.maxY-4):
+                espacio = self.comprobarFigura(i+1,j+1,6)
+                jugador1P = self.comprobarEsquinas(i+1,j+1,6,self.jugador1.id)
+                jugador2P = self.comprobarEsquinas(i+1,j+1,6,self.jugador2.id)
+                if jugador1P and espacio:
+                    self.pieza6= True
+                    break
+                elif jugador2P and espacio:
+                    self.pieza6 = True
+                    break
+                else:
+                    self.pieza6 = False
+            else:
+                continue
+            break
+
+        
+        
+
+
+
+    def temporizador(self): 
         while self.tiempo != 0 and self.playing:
             self.tiempo -= 1
             self.playerTimer.setText(str(self.tiempo))
@@ -237,12 +371,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if self.tiempo == 0:
                 self.pieza = random.randint(1,6)
                 self.imagenFigura(self.pieza)
-                self.tiempo = 10
+                self.tiempo = 20
                 self.camiboJugador()
 
     def insertarFigura(self):
         posX = int(self.Coordenada_X.text()) - 1
         posY = int(self.Coordenada_Y.text()) - 1
+        self.comprobarPosibilidad()
         if self.jugador1.enTurno:
             if self.jugador1.totalPiezas != 0:
                 self.figuras(posX,posY,self.pieza,self.jugador1.color,self.jugador1.id,self.jugador1)
@@ -251,7 +386,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.camiboJugador()
                     self.changePlayer = False
                     self.pieza = random.randint(1,6)
-                    self.tiempo = 10
+                    self.tiempo = 20
         else:
             if self.jugador2.totalPiezas != 0:
                 self.figuras(posX,posY,self.pieza,self.jugador2.color,self.jugador2.id,self.jugador2)
@@ -260,7 +395,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.camiboJugador()
                     self.changePlayer = False
                     self.pieza = random.randint(1,6)
-                    self.tiempo = 10
+                    self.tiempo = 20
         self.imagenFigura(self.pieza)
         
 
