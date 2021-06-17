@@ -151,11 +151,13 @@ class  nodosEnMatriz:
         print(nodosEnX.data)
 #Clase jugador
 class jugador:
-    def __init__(self,id,color,enTurno,totalPiezas):
+    def __init__(self,id,color,enTurno,totalPiezas,intentosActuales,alias):
         self.id = id
         self.color = color
         self.enTurno = enTurno
         self.totalPiezas = totalPiezas
+        self.intentosActuales = intentosActuales
+        self.alias = alias
 
 
 #Clases para la Interfaz
@@ -167,8 +169,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     matriz = nodosEnMatriz()
     pieza = random.randint(1,6)
     #Creacion de Jugadores
-    jugador1 = jugador(1,'yellow',True,15)
-    jugador2 = jugador(2,'green',False,15)
+    jugador1 = jugador(1,'yellow',True,15,2,"J1")
+    jugador2 = jugador(2,'green',False,15,2,"J2")
     #Tiempo
     tiempo = 10
     changePlayer = False
@@ -180,6 +182,26 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     for i in range(int(10)):
         lCabeceras.insertarY(nodoPrincipal,nodosY(i+1))
     
+    def camiboJugador(self):
+        if self.jugador1.enTurno:
+            self.jugador1.enTurno = False
+            self.jugador1.intentosActuales = 2
+            self.jugador2.enTurno = True
+            self.intentos.setText(str(self.jugador2.intentosActuales))
+            self.playerName.setText(self.jugador2.alias)
+            self.numPiezas.setText(str(self.jugador2.totalPiezas))
+            self.tiempo = 10
+        else:
+            self.jugador2.enTurno = False
+            self.jugador2.intentosActuales = 2
+            self.jugador1.enTurno = True
+            self.intentos.setText(str(self.jugador1.intentosActuales))
+            self.tiempo = 10
+            self.playerName.setText(self.jugador1.alias)
+            self.numPiezas.setText(str(self.jugador1.totalPiezas))
+            
+            
+
     def __init__(self, *args, **kwargs):
         QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
         self.setupUi(self)
@@ -190,6 +212,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.imagenFigura(self.pieza)
         self.numPiezas.setText(str(self.jugador1.totalPiezas))
         self.playerTimer.setText(str(self.tiempo))
+        self.intentos.setText(str(self.jugador1.intentosActuales))
+        self.playerName.setText(self.jugador1.alias)
         thread = threading.Thread(target=self.temporizador)
         thread2 = threading.Thread(target=self.cambioPorTiempo)
         thread.start()
@@ -214,35 +238,26 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.pieza = random.randint(1,6)
                 self.imagenFigura(self.pieza)
                 self.tiempo = 10
-                if self.jugador1.enTurno:
-                    self.jugador1.enTurno = False
-                    self.jugador2.enTurno = True
-                else:
-                    self.jugador1.enTurno = True
-                    self.jugador2.enTurno = False
+                self.camiboJugador()
 
     def insertarFigura(self):
         posX = int(self.Coordenada_X.text()) - 1
         posY = int(self.Coordenada_Y.text()) - 1
         if self.jugador1.enTurno:
             if self.jugador1.totalPiezas != 0:
-                self.figuras(posX,posY,self.pieza,self.jugador1.color,self.jugador1.id)
+                self.figuras(posX,posY,self.pieza,self.jugador1.color,self.jugador1.id,self.jugador1)
                 if self.changePlayer:
                     self.jugador1.totalPiezas -= 1
-                    self.jugador1.enTurno = False
-                    self.jugador2.enTurno = True
-                    self.numPiezas.setText(str(self.jugador2.totalPiezas))
+                    self.camiboJugador()
                     self.changePlayer = False
                     self.pieza = random.randint(1,6)
                     self.tiempo = 10
         else:
             if self.jugador2.totalPiezas != 0:
-                self.figuras(posX,posY,self.pieza,self.jugador2.color,self.jugador2.id)
+                self.figuras(posX,posY,self.pieza,self.jugador2.color,self.jugador2.id,self.jugador2)
                 if self.changePlayer:
                     self.jugador2.totalPiezas -= 1
-                    self.jugador1.enTurno = True
-                    self.jugador2.enTurno = False
-                    self.numPiezas.setText(str(self.jugador1.totalPiezas))
+                    self.camiboJugador()
                     self.changePlayer = False
                     self.pieza = random.randint(1,6)
                     self.tiempo = 10
@@ -450,7 +465,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True:
                 return True
 
-    def figuras(self,posIX,posIY,idFigura,color,jugador):
+    def figuras(self,posIX,posIY,idFigura,color,jugador,player):
         if idFigura == 1:
             inicio = 0
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
@@ -463,6 +478,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.ingresarPintar(posIX+1,posIY+inicio-1," ",color)
                 self.matriz.insertar(posIX+2,posIY+inicio,self.nodoPrincipal,nodos(jugador,posIX+2,posIY+inicio))
                 self.changePlayer = True
+            else:
+                QMessageBox.about(self,"Advertencia","¡La pieza no se puede colocar en esa posición!")
+                if player.intentosActuales != 1:
+                    player.intentosActuales -=1
+                    self.intentos.setText(str(player.intentosActuales))
+                else:
+                    self.camiboJugador()
         elif idFigura == 2:
             inicio = 0
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
@@ -475,6 +497,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.ingresarPintar(posIX,posIY+inicio-1," ",color)
                 self.matriz.insertar(posIX+1,posIY+inicio,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+inicio))
                 self.changePlayer = True
+            else:
+                QMessageBox.about(self,"Advertencia","¡La pieza no se puede colocar en esa posición!")
+                if player.intentosActuales != 1:
+                    player.intentosActuales -=1
+                    self.intentos.setText(str(player.intentosActuales))
+                else:
+                    self.camiboJugador()
         elif idFigura == 3:
             inicio = 0
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
@@ -485,6 +514,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.matriz.insertar(posIX+inicio+1,posIY+1,self.nodoPrincipal,nodos(jugador,posIX+inicio+1,posIY+1))
                     inicio+=1
                 self.changePlayer = True
+            else:
+                QMessageBox.about(self,"Advertencia","¡La pieza no se puede colocar en esa posición!")
+                if player.intentosActuales != 1:
+                    player.intentosActuales -=1
+                    self.intentos.setText(str(player.intentosActuales))
+                else:
+                    self.camiboJugador()
         elif idFigura == 4:
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
             esquinasC = self.comprobarEsquinas(posIX+1,posIY+1,idFigura,jugador)
@@ -501,6 +537,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.ingresarPintar(posIX,posIY+1," ",color)
                 self.matriz.insertar(posIX+1,posIY+2,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+2))
                 self.changePlayer = True
+            else:
+                QMessageBox.about(self,"Advertencia","¡La pieza no se puede colocar en esa posición!")
+                if player.intentosActuales != 1:
+                    player.intentosActuales -=1
+                    self.intentos.setText(str(player.intentosActuales))
+                else:
+                    self.camiboJugador()
         elif idFigura == 5:
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
             esquinasC = self.comprobarEsquinas(posIX+1,posIY+1,idFigura,jugador)
@@ -523,6 +566,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.ingresarPintar(posIX+3,posIY+1," ",color)
                 self.matriz.insertar(posIX+4,posIY+2,self.nodoPrincipal,nodos(jugador,posIX+3,posIY+2))
                 self.changePlayer = True
+            else:
+                QMessageBox.about(self,"Advertencia","¡La pieza no se puede colocar en esa posición!")
+                if player.intentosActuales != 1:
+                    player.intentosActuales -=1
+                    self.intentos.setText(str(player.intentosActuales))
+                else:
+                    self.camiboJugador()
         elif idFigura == 6:
             inicio = 0
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
@@ -533,7 +583,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.matriz.insertar(posIX+1,posIY+inicio+1,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+inicio+1))
                     inicio+=1
                 self.changePlayer = True
-
+            else:
+                QMessageBox.about(self,"Advertencia","¡La pieza no se puede colocar en esa posición!")
+                if player.intentosActuales != 1:
+                    player.intentosActuales -=1
+                    self.intentos.setText(str(player.intentosActuales))
+                else:
+                    self.camiboJugador()
+                
     def ingresarPintar(self,posIX,posIY,jugador,color):
         self.tablero.setItem(posIY, posIX, QtWidgets.QTableWidgetItem(jugador))
         self.tablero.item(posIY,posIX).setBackground(QtGui.QColor(color))
