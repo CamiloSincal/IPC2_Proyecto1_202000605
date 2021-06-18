@@ -1,0 +1,28 @@
+digraph Agenda {
+	graph [rankdir=TB]
+	node [color=black fontcolor=black fontname=FangSong fontsize=12 shape=box]
+	edge [color="#999999" fontcolor="#888888" fontname=FangSong fontsize=10]
+	"main Nodo"
+	"1x"
+	"2x"
+	"3x"
+	"4x"
+	"5x"
+	"1x" -> "2x"
+	"2x" -> "3x"
+	"3x" -> "4x"
+	"4x" -> "5x"
+	"main Nodo" -> "1x"
+	"1y"
+	"2y"
+	"3y"
+	"4y"
+	"5y"
+	"6y"
+	"main Nodo" -> "1y"
+	"1y" -> "2y"
+	"2y" -> "3y"
+	"3y" -> "4y"
+	"4y" -> "5y"
+	"5y" -> "6y"
+}

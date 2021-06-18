@@ -1,0 +1,16 @@
+digraph Nodos {
+	graph [rankdir=LR]
+	node [color=black fontcolor=black fontname=FangSong fontsize=12 shape=box style=rounded]
+	edge [color="#999999" fontcolor="#888888" fontname=FangSong fontsize=10]
+	"main Nodo"
+	1
+
+	2
+
+	3
+
+	4
+
+	5
+
+}

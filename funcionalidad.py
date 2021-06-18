@@ -1,20 +1,39 @@
 from math import trunc
+import sys
+from PyQt5.uic import loadUi
 from GameView import *
 from PyQt5.QtGui import * 
 import random
 import threading
 import time
-from PyQt5.QtWidgets import (QApplication, QWidget, QMessageBox)
+from PyQt5.QtWidgets import (QApplication, QWidget, QMessageBox,QDialog)
+from graphviz import Digraph
+
+
+dot = Digraph(
+    name='Agenda',
+    filename=None,
+    directory=None,
+    format="png",
+    engine=None,
+    encoding='utf8',
+    node_attr={'color':'black','fontcolor':'black','fontname':'FangSong','fontsize':'12','shape':'box'},
+    edge_attr={'color':'#999999','fontcolor':'#888888','fontsize':'10','fontname':'FangSong'},
+    body=None,
+    strict=False
+)
+
 #Creacion del nodo Principal
 class mainNodo:
     def __init__(self):
-        self.dato = None
+        self.dato = 'main Nodo'
         self.next = None
         self.down = None
 
 class nodosX:
     def __init__(self, data):
         self.posX = data
+        self.eje = "x"
         self.next = None
         self.previous = None
         self.down = None
@@ -22,6 +41,7 @@ class nodosX:
 class nodosY:
     def __init__(self, data):
         self.posY = data
+        self.eje = "y"
         self.right = None
         self.up = None
         self.down = None
@@ -152,31 +172,34 @@ class  nodosEnMatriz:
         print(nodosEnX.data)
 #Clase jugador
 class jugador:
-    def __init__(self,id,color,enTurno,totalPiezas,intentosActuales,alias):
+    def __init__(self,id,color,enTurno,totalPiezas,intentosActuales,alias,points):
         self.id = id
         self.color = color
         self.enTurno = enTurno
         self.totalPiezas = totalPiezas
         self.intentosActuales = intentosActuales
         self.alias = alias
+        self.points = points
 
 
 #Clases para la Interfaz
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
-    maxX = 7
-    maxY = 10
     lCabeceras = listaCabeceras()
     nodoPrincipal = mainNodo()
     matriz = nodosEnMatriz()
     pieza = random.randint(1,6)
     #Creacion de Jugadores
-    jugador1 = jugador(1,'yellow',True,15,2,"J1")
-    jugador2 = jugador(2,'green',False,15,2,"J2")
+    Tpiezas = 0
+    jugador1 = jugador(1,'yellow',True,Tpiezas,2,"J1",0)
+    jugador2 = jugador(2,'yellow',True,Tpiezas,2,"J2",0)
     #Tiempo
-    tiempo = 20
+    maxTiempo = 1
+    maxX = 0
+    maxY = 0
+    tiempo = maxTiempo
     changePlayer = False
     #Continuar juego
-    playing = True
+    playing = False
     #Variables que indican que cierta pieza puede seguir colocandose
     pieza1 = True
     pieza2 = True
@@ -184,50 +207,98 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     pieza4 = True
     pieza5 = True
     pieza6 = True
-    for i in range(7):
-        lCabeceras.insertarX(nodoPrincipal,nodosX(i+1))
-
-    for i in range(int(10)):
-        lCabeceras.insertarY(nodoPrincipal,nodosY(i+1))
     
+
     def camiboJugador(self):
-        if self.jugador1.enTurno:
-            self.jugador1.enTurno = False
-            self.jugador1.intentosActuales = 2
-            self.jugador2.enTurno = True
-            self.intentos.setText(str(self.jugador2.intentosActuales))
-            self.playerName.setText(self.jugador2.alias)
-            self.numPiezas.setText(str(self.jugador2.totalPiezas))
-            self.tiempo = 20
+        if self.playing:
+            if self.jugador1.enTurno:
+                self.jugador1.enTurno = False
+                self.jugador1.intentosActuales = 2
+                self.jugador2.enTurno = True
+                self.intentos.setText(str(self.jugador2.intentosActuales))
+                self.playerName.setText(self.jugador2.alias)
+                self.numPiezas.setText(str(self.jugador2.totalPiezas))
+                self.ptsJugador.setText(str(self.jugador2.points))
+                self.tiempo = self.maxTiempo
+                self.pieza = random.randint(1,6)
+            else:
+                self.jugador2.enTurno = False
+                self.jugador2.intentosActuales = 2
+                self.jugador1.enTurno = True
+                self.intentos.setText(str(self.jugador1.intentosActuales))
+                self.tiempo = self.maxTiempo
+                self.playerName.setText(self.jugador1.alias)
+                self.numPiezas.setText(str(self.jugador1.totalPiezas))
+                self.ptsJugador.setText(str(self.jugador1.points))
+                self.pieza = random.randint(1,6)
+
+    def startGame(self):
+        color1 = self.colorPlayer(str(self.colorP1.currentText()))
+        color2 = self.colorPlayer(str(self.colorP2.currentText()))
+        
+        nick1 = self.nick1.text()
+        nick2 = self.nick2.text()
+
+        self.maxX = int(self.newX.text())  
+        self.maxY = int(self.newY.text())
+        
+        self.maxTiempo = int(self.timePerPlayer.text())  
+
+        if color1 == color2 or nick1 == nick2:
+            QMessageBox.about(self,"Advertencia","Colores o nombres repetidos")
+        elif self.maxTiempo > 60:
+            QMessageBox.about(self,"Advertencia","El tiempo no puede ser mayor a 60")
+        elif self.maxX < 4 and self.maxY < 4:
+            QMessageBox.about(self,"Advertencia","El tablero debe ser de mínimo 4x4")
         else:
-            self.jugador2.enTurno = False
-            self.jugador2.intentosActuales = 2
-            self.jugador1.enTurno = True
-            self.intentos.setText(str(self.jugador1.intentosActuales))
-            self.tiempo = 20
-            self.playerName.setText(self.jugador1.alias)
-            self.numPiezas.setText(str(self.jugador1.totalPiezas))
+            self.playing = True
             
+            for i in range(self.maxX):
+                self.lCabeceras.insertarX(self.nodoPrincipal,nodosX(i+1))
+
+            for i in range(int(self.maxY)):
+                self.lCabeceras.insertarY(self.nodoPrincipal,nodosY(i+1))  
             
 
-    def __init__(self, *args, **kwargs):
+            self.tablero.setRowCount(self.maxY)
+            self.tablero.setColumnCount(self.maxX)
+
+            self.Tpiezas = int(self.totalPerPlayer.text())
+
+            self.jugador1 = jugador(1,color1,True,self.Tpiezas,2,nick1,0)
+            self.jugador2 = jugador(2,color2,False,self.Tpiezas,2,nick2,0)
+
+            thread = threading.Thread(target=self.temporizador)
+            thread2 = threading.Thread(target=self.cambioPorTiempo)
+            thread3 = threading.Thread(target=self.winGame)
+            
+            thread3.start()
+            thread.start()
+            thread2.start()
+            
+    def colorPlayer(self,colorES):
+        if colorES == "Azul":
+            return "blue"
+        elif colorES == "Rojo":
+            return "red"
+        elif colorES == "Amarillo":
+            return "yellow"
+        elif colorES == "Verde":
+            return "green"
+    def __init__(self,*args, **kwargs):
         QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
         self.setupUi(self)
-        self.tablero.setRowCount(self.maxY)
-        self.tablero.setColumnCount(self.maxX)
         self.tablero
         self.terminarButton.clicked.connect(self.insertarFigura)
+        self.pasarTurno.clicked.connect(self.camiboJugador)
+        self.newGameStart.clicked.connect(self.startGame)
+        self.newReporte.clicked.connect(self.generateReport)
         self.imagenFigura(self.pieza)
         self.numPiezas.setText(str(self.jugador1.totalPiezas))
         self.playerTimer.setText(str(self.tiempo))
         self.intentos.setText(str(self.jugador1.intentosActuales))
         self.playerName.setText(self.jugador1.alias)
-        thread = threading.Thread(target=self.temporizador)
-        thread2 = threading.Thread(target=self.cambioPorTiempo)
-        thread3 = threading.Thread(target=self.winGame)
-        thread3.start()
-        thread.start()
-        thread2.start()
+        
 
     def closeEvent(self, event):
         respuesta = QMessageBox.question(self, 'Cerrar Juego', '¿Quieres Salir del juego?',QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -245,7 +316,38 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             #Verifico si todas las piezas no se pueden colocar para dar fin al juego
             if self.pieza1 == False and self.pieza2 == False and self.pieza3 == False and self.pieza4 == False and self.pieza5 == False and self.pieza6 == False:
                 self.playing = False
-
+        self.winMessage.setText("ALGUIEN GANÓ")
+        
+    def generateReport(self):
+        #Generacion nodo parte izquierda
+        dot.graph_attr={'rankdir':'LR'}
+        dot.node(str(self.nodoPrincipal.dato))
+        aux = self.nodoPrincipal.next
+        while(aux != None):
+            dot.node(str(aux.posX)+str(aux.eje))
+            aux = aux.next
+        
+        aux = self.nodoPrincipal.next
+        while(aux.next != None):
+            dot.edge(str(aux.posX)+str(aux.eje),str(aux.next.posX)+str(aux.eje))
+            
+            aux = aux.next
+            
+        dot.edge(str(self.nodoPrincipal.dato),str(1)+"x")
+        
+        #Cabeceras Y
+        dot.graph_attr={'rankdir':'TB'}
+        aux2 = self.nodoPrincipal.down
+        while(aux2 != None):
+            dot.node(str(aux2.posY)+str(aux2.eje))
+            aux2 = aux2.down
+        dot.edge(str(self.nodoPrincipal.dato),str(1)+"y")
+        
+        aux2 = self.nodoPrincipal.down
+        while(aux2.down != None):
+            dot.edge(str(aux2.posY)+str(aux2.eje),str(aux2.down.posY)+str(aux2.eje))
+            aux2 = aux2.down
+        dot.view()
     def comprobarPosibilidad(self):
         
         #Verifico si se puede [Pieza 1]
@@ -369,34 +471,32 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def cambioPorTiempo(self):
         while self.playing:
             if self.tiempo == 0:
-                self.pieza = random.randint(1,6)
                 self.imagenFigura(self.pieza)
-                self.tiempo = 20
+                self.tiempo = self.maxTiempo
                 self.camiboJugador()
 
     def insertarFigura(self):
-        posX = int(self.Coordenada_X.text()) - 1
-        posY = int(self.Coordenada_Y.text()) - 1
-        self.comprobarPosibilidad()
-        if self.jugador1.enTurno:
-            if self.jugador1.totalPiezas != 0:
-                self.figuras(posX,posY,self.pieza,self.jugador1.color,self.jugador1.id,self.jugador1)
-                if self.changePlayer:
-                    self.jugador1.totalPiezas -= 1
-                    self.camiboJugador()
-                    self.changePlayer = False
-                    self.pieza = random.randint(1,6)
-                    self.tiempo = 20
-        else:
-            if self.jugador2.totalPiezas != 0:
-                self.figuras(posX,posY,self.pieza,self.jugador2.color,self.jugador2.id,self.jugador2)
-                if self.changePlayer:
-                    self.jugador2.totalPiezas -= 1
-                    self.camiboJugador()
-                    self.changePlayer = False
-                    self.pieza = random.randint(1,6)
-                    self.tiempo = 20
-        self.imagenFigura(self.pieza)
+        if self.playing:
+            posX = int(self.Coordenada_X.text()) - 1
+            posY = int(self.Coordenada_Y.text()) - 1
+            self.comprobarPosibilidad()
+            if self.jugador1.enTurno:
+                if self.jugador1.totalPiezas != 0:
+                    self.figuras(posX,posY,self.pieza,self.jugador1.color,self.jugador1.id,self.jugador1)
+                    if self.changePlayer:
+                        self.jugador1.totalPiezas -= 1
+                        self.camiboJugador()
+                        self.changePlayer = False
+                        self.tiempo = self.maxTiempo
+            else:
+                if self.jugador2.totalPiezas != 0:
+                    self.figuras(posX,posY,self.pieza,self.jugador2.color,self.jugador2.id,self.jugador2)
+                    if self.changePlayer:
+                        self.jugador2.totalPiezas -= 1
+                        self.camiboJugador()
+                        self.changePlayer = False
+                        self.tiempo = self.maxTiempo
+            self.imagenFigura(self.pieza)
         
 
     def imagenFigura(self,idFigura):
@@ -612,6 +712,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     inicio+=1
                 self.ingresarPintar(posIX+1,posIY+inicio-1," ",color)
                 self.matriz.insertar(posIX+2,posIY+inicio,self.nodoPrincipal,nodos(jugador,posIX+2,posIY+inicio))
+                player.points +=1
                 self.changePlayer = True
             else:
                 QMessageBox.about(self,"Advertencia","¡La pieza no se puede colocar en esa posición!")
@@ -631,6 +732,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     inicio+=1
                 self.ingresarPintar(posIX,posIY+inicio-1," ",color)
                 self.matriz.insertar(posIX+1,posIY+inicio,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+inicio))
+                player.points +=1
                 self.changePlayer = True
             else:
                 QMessageBox.about(self,"Advertencia","¡La pieza no se puede colocar en esa posición!")
@@ -648,6 +750,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.ingresarPintar(posIX+inicio,posIY," ",color)
                     self.matriz.insertar(posIX+inicio+1,posIY+1,self.nodoPrincipal,nodos(jugador,posIX+inicio+1,posIY+1))
                     inicio+=1
+                player.points +=1
                 self.changePlayer = True
             else:
                 QMessageBox.about(self,"Advertencia","¡La pieza no se puede colocar en esa posición!")
@@ -671,6 +774,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
                 self.ingresarPintar(posIX,posIY+1," ",color)
                 self.matriz.insertar(posIX+1,posIY+2,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+2))
+                player.points +=1
                 self.changePlayer = True
             else:
                 QMessageBox.about(self,"Advertencia","¡La pieza no se puede colocar en esa posición!")
@@ -700,6 +804,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
                 self.ingresarPintar(posIX+3,posIY+1," ",color)
                 self.matriz.insertar(posIX+4,posIY+2,self.nodoPrincipal,nodos(jugador,posIX+3,posIY+2))
+                player.points +=1
                 self.changePlayer = True
             else:
                 QMessageBox.about(self,"Advertencia","¡La pieza no se puede colocar en esa posición!")
@@ -717,6 +822,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.ingresarPintar(posIX,posIY+inicio," ",color)
                     self.matriz.insertar(posIX+1,posIY+inicio+1,self.nodoPrincipal,nodos(jugador,posIX+1,posIY+inicio+1))
                     inicio+=1
+                player.points +=1
                 self.changePlayer = True
             else:
                 QMessageBox.about(self,"Advertencia","¡La pieza no se puede colocar en esa posición!")
@@ -729,6 +835,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def ingresarPintar(self,posIX,posIY,jugador,color):
         self.tablero.setItem(posIY, posIX, QtWidgets.QTableWidgetItem(jugador))
         self.tablero.item(posIY,posIX).setBackground(QtGui.QColor(color))
+
 if __name__=='__main__':
     app = QtWidgets.QApplication([])
     window = MainWindow()
