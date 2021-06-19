@@ -1,0 +1,30 @@
+body{
+  background-color: #632432;
+  font-family: Arial;
+}
+
+#main-container{
+    margin: 150px auto;
+    width: 600px;
+}
+
+table{
+  background-color: white;
+  text-align: left;
+  border-collapse: collapse;
+  width: 100%
+}
+
+th,td{
+  padding: 20px;
+}
+
+thead{
+  background-color: #246355;
+  border-bottom: solid 5px;
+  color: white;
+}
+
+tr:nth-child{
+  background-color: #ddd;
+}

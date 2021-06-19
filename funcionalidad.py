@@ -1,35 +1,26 @@
-from math import trunc
-import sys
-from PyQt5.uic import loadUi
 from GameView import *
 from PyQt5.QtGui import * 
 import random
 import threading
 import time
-from PyQt5.QtWidgets import (QApplication, QWidget, QMessageBox,QDialog)
-from graphviz import Digraph
-
-
-dot = Digraph(
-    name='Agenda',
-    filename=None,
-    directory=None,
-    format="png",
-    engine=None,
-    encoding='utf8',
-    node_attr={'color':'black','fontcolor':'black','fontname':'FangSong','fontsize':'12','shape':'box'},
-    edge_attr={'color':'#999999','fontcolor':'#888888','fontsize':'10','fontname':'FangSong'},
-    body=None,
-    strict=False
-)
-
-#Creacion del nodo Principal
+import pydot
+from PyQt5.QtWidgets import (QMessageBox)
+#-------------------------------------------Partes de texto para el HTML-------------------------------------------
+startHTML = '<!DOCTYPE html><html lang="en" dir="ltr"><head><meta charset="utf-8"><title>Reporte</title><link rel="stylesheet" href="style.css" type="text/css"></head><body><div id="main-container"><table><thead><tr><th>Alias Jugadores</th><th>Color</th><th>Equivocaciones</th><th>Partidas Ganadas</th></tr></thead>'
+middleHTML = ''
+endHTML = '</table></div></body></html>'
+#-------------------------------------------Partes de texto para Graphviz------------------------------------------
+startGraphText = 'digraph g{node[style="filled",fillcolor="navyblue",shape="box"]'
+middleGraphText = ''
+endGraphText = '}'
+#--------------------------------------------Nodo Principal De La Matriz-------------------------------------------
 class mainNodo:
     def __init__(self):
         self.dato = 'main Nodo'
         self.next = None
         self.down = None
 
+#--------------------------------------------Nodos de la cabecera X-------------------------------------------
 class nodosX:
     def __init__(self, data):
         self.posX = data
@@ -38,6 +29,7 @@ class nodosX:
         self.previous = None
         self.down = None
 
+#--------------------------------------------Nodos de la cabecera Y-------------------------------------------
 class nodosY:
     def __init__(self, data):
         self.posY = data
@@ -46,6 +38,7 @@ class nodosY:
         self.up = None
         self.down = None
 
+#--------------------------------------Nodos que representan cada parte de una pieza-----------------------------
 class nodos:
     def __init__(self, data,posX,posY):
         self.data = data
@@ -56,7 +49,7 @@ class nodos:
         self.left = None
         self.down = None
 
-#Clase para la creacion de cabeceras en X y Y
+#--------------------------------------------Identificador de los primeros nodos en X,Y-------------------------------------------
 class listaCabeceras:
     def __init__(self):
         self.firstX = None
@@ -102,7 +95,7 @@ class listaCabeceras:
         while(aux != None):
             print(aux.posY)
             aux = aux.down
-#Clase para creacion de nodos ingresados[Piezas]
+##--------------------------------------------Matriz que almacenara los nodos-------------------------------------------
 class  nodosEnMatriz:
     def __init__(self):
         self.main = None
@@ -170,28 +163,30 @@ class  nodosEnMatriz:
             nodosEnX = nodosEnX.down
         
         print(nodosEnX.data)
-#Clase jugador
+#--------------------------------------------Clase representa a un Jugador------------------------------------------
 class jugador:
-    def __init__(self,id,color,enTurno,totalPiezas,intentosActuales,alias,points):
+    def __init__(self,id,color,enTurno,totalPiezas,alias):
         self.id = id
         self.color = color
         self.enTurno = enTurno
         self.totalPiezas = totalPiezas
-        self.intentosActuales = intentosActuales
+        self.intentosActuales = 2
         self.alias = alias
-        self.points = points
+        self.points = 0
+        self.wins = 0
+        self.errors = 0
 
 
-#Clases para la Interfaz
+#--------------------------------------------Clase del tablero de juego-------------------------------------------
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
-    lCabeceras = listaCabeceras()
     nodoPrincipal = mainNodo()
+    lCabeceras = listaCabeceras()
     matriz = nodosEnMatriz()
     pieza = random.randint(1,6)
     #Creacion de Jugadores
     Tpiezas = 0
-    jugador1 = jugador(1,'yellow',True,Tpiezas,2,"J1",0)
-    jugador2 = jugador(2,'yellow',True,Tpiezas,2,"J2",0)
+    jugador1 = jugador(1,'yellow',True,Tpiezas,"J1")
+    jugador2 = jugador(2,'yellow',True,Tpiezas,"J2")
     #Tiempo
     maxTiempo = 1
     maxX = 0
@@ -233,6 +228,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.pieza = random.randint(1,6)
 
     def startGame(self):
+        self.tablero.setRowCount(0)
+        self.tablero.setColumnCount(0)
         color1 = self.colorPlayer(str(self.colorP1.currentText()))
         color2 = self.colorPlayer(str(self.colorP2.currentText()))
         
@@ -251,6 +248,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif self.maxX < 4 and self.maxY < 4:
             QMessageBox.about(self,"Advertencia","El tablero debe ser de mínimo 4x4")
         else:
+            
             self.playing = True
             
             for i in range(self.maxX):
@@ -265,8 +263,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             self.Tpiezas = int(self.totalPerPlayer.text())
 
-            self.jugador1 = jugador(1,color1,True,self.Tpiezas,2,nick1,0)
-            self.jugador2 = jugador(2,color2,False,self.Tpiezas,2,nick2,0)
+            self.jugador1 = jugador(1,color1,True,self.Tpiezas,nick1)
+            self.jugador2 = jugador(2,color2,False,self.Tpiezas,nick2)
 
             thread = threading.Thread(target=self.temporizador)
             thread2 = threading.Thread(target=self.cambioPorTiempo)
@@ -292,7 +290,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.terminarButton.clicked.connect(self.insertarFigura)
         self.pasarTurno.clicked.connect(self.camiboJugador)
         self.newGameStart.clicked.connect(self.startGame)
-        self.newReporte.clicked.connect(self.generateReport)
+        self.newReporte.clicked.connect(self.createGraph)
         self.imagenFigura(self.pieza)
         self.numPiezas.setText(str(self.jugador1.totalPiezas))
         self.playerTimer.setText(str(self.tiempo))
@@ -318,36 +316,131 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.playing = False
         self.winMessage.setText("ALGUIEN GANÓ")
         
-    def generateReport(self):
-        #Generacion nodo parte izquierda
-        dot.graph_attr={'rankdir':'LR'}
-        dot.node(str(self.nodoPrincipal.dato))
+    def createHTML(self):
+        global startHTML
+        global middleHTML
+        global endHTML
+        file = open('reporteHTML.html','w')
+        #Datos Jugador1
+        middleHTML += '<tr>'+'<td>'+str(self.jugador1.alias)+'</td>'+'<td>'+str(self.jugador1.color)+'</td>'+'<td>'+str(self.jugador1.errors)+'</td>'+'<td>'+str(self.jugador1.wins)+'</td>'+'</tr>'
+        middleHTML += '<tr>'+'<td>'+str(self.jugador2.alias)+'</td>'+'<td>'+str(self.jugador2.color)+'</td>'+'<td>'+str(self.jugador2.errors)+'</td>'+'<td>'+str(self.jugador2.wins)+'</td>'+'</tr>'
+        text = startHTML + middleHTML +endHTML
+        file.write(text)
+        file.close()
+    
+    def createGraph(self):
+        global startGraphText
+        global middleGraphText
+        global endGraphText
+        file = open('matriz.dot','w')
+        middleGraphText += 'mainNode[label='+'"'+self.nodoPrincipal.dato+'"'+'fontcolor="white"]'
+        #Agrego los nodos en X existentes
         aux = self.nodoPrincipal.next
-        while(aux != None):
-            dot.node(str(aux.posX)+str(aux.eje))
+        while aux != None:
+            if aux.down != None:
+                middleGraphText += 'node'+str(aux.posX)+'x[label="'+str(aux.posX)+'x",fontcolor="white"]'
             aux = aux.next
         
+        #Agrego los nodos en Y existentes
+        aux2 = self.nodoPrincipal.down
+        while aux2 != None:
+            if aux2.right != None:
+                middleGraphText += 'node'+str(aux2.posY)+'y[label="'+str(aux2.posY)+'y",fontcolor="white"]\n'
+            aux2 = aux2.down
+
+        #Agrego los nodos correspondientes tomando como base el eje X 
+        recX = self.nodoPrincipal.next
+        while recX != None:
+            if recX.down != None:
+                recAbajo = recX.down
+                while recAbajo != None:
+                    middleGraphText += 'node'+str(recAbajo.posX)+str(recAbajo.posY)+'[label="'+str(recAbajo.posX)+','+str(recAbajo.posY)+'",fontcolor="white"]\n'
+                    recAbajo = recAbajo.down
+            recX = recX.next
+
+        #Creo las relaciones entre nodos en X
+        posI = self.nodoPrincipal.next
+        pos2 = posI.next 
+
+        primerX = self.nodoPrincipal.next
+        while primerX != None:
+            if(primerX.down != None):
+                break
+            primerX = primerX.next
+
+        middleGraphText += 'mainNode->node'+str(primerX.posX)+'x\n'
+        
+        while posI != None and pos2 != None:
+            if posI.down != None and pos2.down != None:
+                middleGraphText += 'node'+str(posI.posX)+'x->'+'node'+str(pos2.posX)+'x\n'
+                posI = posI.next
+                pos2 = posI.next
+            elif posI.down != None and pos2.down == None:
+                pos2 = pos2.next
+            elif posI.down == None and pos2.down != None:
+                posI = pos2
+                pos2 = pos2.next
+            elif posI.down == None and pos2.down == None:
+                posI = posI.next
+                pos2 = posI.next
+                
+        middleGraphText +='{rank="same";'
+
         aux = self.nodoPrincipal.next
-        while(aux.next != None):
-            dot.edge(str(aux.posX)+str(aux.eje),str(aux.next.posX)+str(aux.eje))
-            
+        while aux !=None:
+            if aux.down != None:
+                middleGraphText += 'node'+str(aux.posX)+'x;'
             aux = aux.next
-            
-        dot.edge(str(self.nodoPrincipal.dato),str(1)+"x")
+
+        middleGraphText +='mainNode}\n'
+
+        #Creo las relaciones entre nodos en Y
+        posIY = self.nodoPrincipal.down
+        pos2Y = posIY.down 
+
+        primerY = self.nodoPrincipal.down
+        while primerY != None:
+            if(primerY.right != None):
+                break
+            primerY = primerY.down
+
+        middleGraphText += 'mainNode->node'+str(primerY.posY)+'y\n'
         
-        #Cabeceras Y
-        dot.graph_attr={'rankdir':'TB'}
-        aux2 = self.nodoPrincipal.down
-        while(aux2 != None):
-            dot.node(str(aux2.posY)+str(aux2.eje))
-            aux2 = aux2.down
-        dot.edge(str(self.nodoPrincipal.dato),str(1)+"y")
+        while posIY != None and pos2Y != None:
+            if posIY.right != None and pos2Y.right != None:
+                middleGraphText += 'node'+str(posIY.posY)+'y->'+'node'+str(pos2Y.posY)+'y\n'
+                posIY = posIY.down
+                pos2Y = posIY.down
+            elif posIY.right != None and pos2Y.right == None:
+                pos2Y = pos2Y.down
+            elif posIY.right == None and pos2Y.right != None:
+                posIY = pos2Y
+                pos2Y = pos2Y.down
+            elif posIY.right == None and pos2Y.right == None:
+                posIY = posIY.down
+                pos2Y = posIY.down
+        #Creo las relaciones entre los otros nodos
+        inicioX = self.nodoPrincipal.next
         
-        aux2 = self.nodoPrincipal.down
-        while(aux2.down != None):
-            dot.edge(str(aux2.posY)+str(aux2.eje),str(aux2.down.posY)+str(aux2.eje))
-            aux2 = aux2.down
-        dot.view()
+        while inicioX != None:
+            if inicioX.down != None:
+                pos1N = inicioX.down
+                pos2N = pos1N.down
+                middleGraphText += 'node'+str(inicioX.posX)+'x->'+'node'+str(pos1N.posX)+str(pos1N.posY)+'\n'
+                while pos2N !=None:
+                    if pos2N != None:
+                        middleGraphText += 'node'+str(pos1N.posX)+str(pos1N.posY)+'->'+'node'+str(pos2N.posX)+str(pos2N.posY)+'\n'
+                        pos1N = pos1N.down  
+                        pos2N = pos1N.down
+            inicioX = inicioX.next
+
+        
+        
+        text = startGraphText + middleGraphText + endGraphText
+        file.write(text)
+        file.close()
+        (graph,) = pydot.graph_from_dot_file('matriz.dot')
+        graph.write_png('matriz.png')
     def comprobarPosibilidad(self):
         
         #Verifico si se puede [Pieza 1]
@@ -456,11 +549,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             else:
                 continue
             break
-
-        
-        
-
-
 
     def temporizador(self): 
         while self.tiempo != 0 and self.playing:
@@ -721,6 +809,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.intentos.setText(str(player.intentosActuales))
                 else:
                     self.camiboJugador()
+                    player.errors+=1
         elif idFigura == 2:
             inicio = 0
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
@@ -741,6 +830,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.intentos.setText(str(player.intentosActuales))
                 else:
                     self.camiboJugador()
+                player.errors+=1
         elif idFigura == 3:
             inicio = 0
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
@@ -759,6 +849,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.intentos.setText(str(player.intentosActuales))
                 else:
                     self.camiboJugador()
+                player.errors+=1
         elif idFigura == 4:
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
             esquinasC = self.comprobarEsquinas(posIX+1,posIY+1,idFigura,jugador)
@@ -783,6 +874,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.intentos.setText(str(player.intentosActuales))
                 else:
                     self.camiboJugador()
+                player.errors+=1
         elif idFigura == 5:
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
             esquinasC = self.comprobarEsquinas(posIX+1,posIY+1,idFigura,jugador)
@@ -803,7 +895,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.matriz.insertar(posIX+3,posIY+2,self.nodoPrincipal,nodos(jugador,posIX+3,posIY+2))
 
                 self.ingresarPintar(posIX+3,posIY+1," ",color)
-                self.matriz.insertar(posIX+4,posIY+2,self.nodoPrincipal,nodos(jugador,posIX+3,posIY+2))
+                self.matriz.insertar(posIX+4,posIY+2,self.nodoPrincipal,nodos(jugador,posIX+4,posIY+2))
                 player.points +=1
                 self.changePlayer = True
             else:
@@ -813,6 +905,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.intentos.setText(str(player.intentosActuales))
                 else:
                     self.camiboJugador()
+                player.errors+=1
         elif idFigura == 6:
             inicio = 0
             poderIngresar = self.comprobarFigura(posIX+1,posIY+1,idFigura)
@@ -831,6 +924,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.intentos.setText(str(player.intentosActuales))
                 else:
                     self.camiboJugador()
+                player.errors+=1
                 
     def ingresarPintar(self,posIX,posIY,jugador,color):
         self.tablero.setItem(posIY, posIX, QtWidgets.QTableWidgetItem(jugador))
