@@ -1,3 +1,4 @@
+from pyparsing import Empty
 from GameView import *
 from PyQt5.QtGui import * 
 import random
@@ -230,8 +231,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
            
 
     def startGame(self):
-        winsJ1 = self.jugador1.points
-        winsJ2 = self.jugador2.points
+        self.winMessage.setText("")
+        winsJ1 = self.jugador1.wins
+        winsJ2 = self.jugador2.wins
         
         Errors1 = self.jugador1.errors
         Errors2 = self.jugador2.errors
@@ -326,13 +328,28 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def winGame(self):
         while self.playing:
+            self.comprobarPosibilidad()
             #Verifico si algún jugador se quedo sin piezas
             if self.jugador1.totalPiezas == 0 or self.jugador2.totalPiezas == 0:
+                if self.jugador1.totalPiezas == 0:
+                    self.winMessage.setText(str(self.jugador1.alias)+" GANÓ")
+                    self.jugador1.wins +=1
+                else:
+                    self.winMessage.setText(str(self.jugador2.alias)+" GANÓ")
+                    self.jugador2.wins +=1
                 self.playing = False
             #Verifico si todas las piezas no se pueden colocar para dar fin al juego
             if self.pieza1 == False and self.pieza2 == False and self.pieza3 == False and self.pieza4 == False and self.pieza5 == False and self.pieza6 == False:
+                if self.jugador1.points > self.jugador2.points:
+                    self.winMessage.setText(str(self.jugador1.alias)+" GANÓ")
+                    self.jugador1.wins +=1
+                elif self.jugador2.points > self.jugador1.points:
+                    self.winMessage.setText(str(self.jugador2.alias)+" GANÓ")
+                    self.jugador2.wins +=1
+                else:
+                    self.winMessage.setText("FUE UN EMPATE")
                 self.playing = False
-        self.winMessage.setText("ALGUIEN GANÓ")
+        
         
     def createHTML(self):
         global startHTML
@@ -474,7 +491,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.createHTML()
 
     def comprobarPosibilidad(self):
-        
         #Verifico si se puede [Pieza 1]
         for i in range(self.maxX-1):
             for j in range(self.maxY-3):
@@ -565,6 +581,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             break
 
         #Verifico si se puede [Pieza 6]
+        if self.maxY < 5:
+            self.pieza6 = False
+
         for i in range(self.maxX):
             for j in range(self.maxY-4):
                 espacio = self.comprobarFigura(i+1,j+1,6)
@@ -597,26 +616,28 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def insertarFigura(self):
         if self.playing:
-            posX = int(self.Coordenada_X.text()) - 1
-            posY = int(self.Coordenada_Y.text()) - 1
-            self.comprobarPosibilidad()
-            if self.jugador1.enTurno:
-                if self.jugador1.totalPiezas != 0:
-                    self.figuras(posX,posY,self.pieza,self.jugador1.color,self.jugador1.id,self.jugador1)
-                    if self.changePlayer:
-                        self.jugador1.totalPiezas -= 1
-                        self.camiboJugador()
-                        self.changePlayer = False
-                        self.tiempo = self.maxTiempo
+            if self.Coordenada_X.text() != "" and self.Coordenada_Y.text() != "":
+                posX = int(self.Coordenada_X.text()) - 1
+                posY = int(self.Coordenada_Y.text()) - 1
+                if self.jugador1.enTurno:
+                    if self.jugador1.totalPiezas != 0:
+                        self.figuras(posX,posY,self.pieza,self.jugador1.color,self.jugador1.id,self.jugador1)
+                        if self.changePlayer:
+                            self.jugador1.totalPiezas -= 1
+                            self.camiboJugador()
+                            self.changePlayer = False
+                            self.tiempo = self.maxTiempo
+                else:
+                    if self.jugador2.totalPiezas != 0:
+                        self.figuras(posX,posY,self.pieza,self.jugador2.color,self.jugador2.id,self.jugador2)
+                        if self.changePlayer:
+                            self.jugador2.totalPiezas -= 1
+                            self.camiboJugador()
+                            self.changePlayer = False
+                            self.tiempo = self.maxTiempo
+                self.imagenFigura(self.pieza)
             else:
-                if self.jugador2.totalPiezas != 0:
-                    self.figuras(posX,posY,self.pieza,self.jugador2.color,self.jugador2.id,self.jugador2)
-                    if self.changePlayer:
-                        self.jugador2.totalPiezas -= 1
-                        self.camiboJugador()
-                        self.changePlayer = False
-                        self.tiempo = self.maxTiempo
-            self.imagenFigura(self.pieza)
+                QMessageBox.about(self,"Advertencia","¡No se ingresaron todas las coordenadas!")
         
 
     def imagenFigura(self,idFigura):
