@@ -226,6 +226,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.numPiezas.setText(str(self.jugador1.totalPiezas))
                 self.ptsJugador.setText(str(self.jugador1.points))
                 self.pieza = random.randint(1,6)
+            self.imagenFigura(self.pieza)
+           
 
     def startGame(self):
         self.tablero.setRowCount(0)
@@ -239,7 +241,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.maxX = int(self.newX.text())  
         self.maxY = int(self.newY.text())
         
-        self.maxTiempo = int(self.timePerPlayer.text())  
+        self.maxTiempo = int(self.timePerPlayer.text())
 
         if color1 == color2 or nick1 == nick2:
             QMessageBox.about(self,"Advertencia","Colores o nombres repetidos")
@@ -248,7 +250,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif self.maxX < 4 and self.maxY < 4:
             QMessageBox.about(self,"Advertencia","El tablero debe ser de mínimo 4x4")
         else:
-            
+            self.nodoPrincipal = mainNodo()
+            self.lCabeceras = listaCabeceras()
+            self.matriz = nodosEnMatriz()
+            self.pieza = random.randint(1,6)
+            self.imagenFigura(self.pieza)
             self.playing = True
             
             for i in range(self.maxX):
@@ -324,6 +330,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         file = open('reporteHTML.html','w')
         #Datos Jugador1
         middleHTML += '<tr>'+'<td>'+str(self.jugador1.alias)+'</td>'+'<td>'+str(self.jugador1.color)+'</td>'+'<td>'+str(self.jugador1.errors)+'</td>'+'<td>'+str(self.jugador1.wins)+'</td>'+'</tr>'
+        #Datos Jugador2
         middleHTML += '<tr>'+'<td>'+str(self.jugador2.alias)+'</td>'+'<td>'+str(self.jugador2.color)+'</td>'+'<td>'+str(self.jugador2.errors)+'</td>'+'<td>'+str(self.jugador2.wins)+'</td>'+'</tr>'
         middleHTML += '<img src="matriz.png">'
         text = startHTML + middleHTML +endHTML
