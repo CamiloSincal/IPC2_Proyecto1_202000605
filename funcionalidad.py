@@ -290,7 +290,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.terminarButton.clicked.connect(self.insertarFigura)
         self.pasarTurno.clicked.connect(self.camiboJugador)
         self.newGameStart.clicked.connect(self.startGame)
-        self.newReporte.clicked.connect(self.createGraph)
+        self.newReporte.clicked.connect(self.generarReporte)
         self.imagenFigura(self.pieza)
         self.numPiezas.setText(str(self.jugador1.totalPiezas))
         self.playerTimer.setText(str(self.tiempo))
@@ -320,10 +320,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         global startHTML
         global middleHTML
         global endHTML
+        middleHTML = ''
         file = open('reporteHTML.html','w')
         #Datos Jugador1
         middleHTML += '<tr>'+'<td>'+str(self.jugador1.alias)+'</td>'+'<td>'+str(self.jugador1.color)+'</td>'+'<td>'+str(self.jugador1.errors)+'</td>'+'<td>'+str(self.jugador1.wins)+'</td>'+'</tr>'
         middleHTML += '<tr>'+'<td>'+str(self.jugador2.alias)+'</td>'+'<td>'+str(self.jugador2.color)+'</td>'+'<td>'+str(self.jugador2.errors)+'</td>'+'<td>'+str(self.jugador2.wins)+'</td>'+'</tr>'
+        middleHTML += '<img src="matriz.png">'
         text = startHTML + middleHTML +endHTML
         file.write(text)
         file.close()
@@ -332,6 +334,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         global startGraphText
         global middleGraphText
         global endGraphText
+        middleGraphText = ''
         file = open('matriz.dot','w')
         middleGraphText += 'mainNode[label='+'"'+self.nodoPrincipal.dato+'"'+'fontcolor="white"]'
         #Agrego los nodos en X existentes
@@ -369,10 +372,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             primerX = primerX.next
 
         middleGraphText += 'mainNode->node'+str(primerX.posX)+'x\n'
+        middleGraphText += 'node'+str(primerX.posX)+'x->mainNode\n'
         
         while posI != None and pos2 != None:
             if posI.down != None and pos2.down != None:
                 middleGraphText += 'node'+str(posI.posX)+'x->'+'node'+str(pos2.posX)+'x\n'
+                middleGraphText += 'node'+str(pos2.posX)+'x->'+'node'+str(posI.posX)+'x\n'
                 posI = posI.next
                 pos2 = posI.next
             elif posI.down != None and pos2.down == None:
@@ -405,10 +410,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             primerY = primerY.down
 
         middleGraphText += 'mainNode->node'+str(primerY.posY)+'y\n'
-        
+        middleGraphText += 'node'+str(primerY.posY)+'y->mainNode\n'
         while posIY != None and pos2Y != None:
             if posIY.right != None and pos2Y.right != None:
                 middleGraphText += 'node'+str(posIY.posY)+'y->'+'node'+str(pos2Y.posY)+'y\n'
+                middleGraphText += 'node'+str(pos2Y.posY)+'y->'+'node'+str(posIY.posY)+'y\n'
                 posIY = posIY.down
                 pos2Y = posIY.down
             elif posIY.right != None and pos2Y.right == None:
@@ -427,9 +433,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 pos1N = inicioX.down
                 pos2N = pos1N.down
                 middleGraphText += 'node'+str(inicioX.posX)+'x->'+'node'+str(pos1N.posX)+str(pos1N.posY)+'\n'
+                middleGraphText += 'node'+str(pos1N.posX)+str(pos1N.posY)+'->'+'node'+str(inicioX.posX)+'x\n'
                 while pos2N !=None:
                     if pos2N != None:
                         middleGraphText += 'node'+str(pos1N.posX)+str(pos1N.posY)+'->'+'node'+str(pos2N.posX)+str(pos2N.posY)+'\n'
+                        middleGraphText += 'node'+str(pos2N.posX)+str(pos2N.posY)+'->'+'node'+str(pos1N.posX)+str(pos1N.posY)+'\n'
                         pos1N = pos1N.down  
                         pos2N = pos1N.down
             inicioX = inicioX.next
@@ -441,6 +449,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         file.close()
         (graph,) = pydot.graph_from_dot_file('matriz.dot')
         graph.write_png('matriz.png')
+
+    def generarReporte(self):
+        self.createGraph()
+        self.createHTML()
+
     def comprobarPosibilidad(self):
         
         #Verifico si se puede [Pieza 1]
