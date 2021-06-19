@@ -230,6 +230,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
            
 
     def startGame(self):
+        winsJ1 = self.jugador1.points
+        winsJ2 = self.jugador2.points
+        
+        Errors1 = self.jugador1.errors
+        Errors2 = self.jugador2.errors
+
         self.tablero.setRowCount(0)
         self.tablero.setColumnCount(0)
         color1 = self.colorPlayer(str(self.colorP1.currentText()))
@@ -272,6 +278,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.jugador1 = jugador(1,color1,True,self.Tpiezas,nick1)
             self.jugador2 = jugador(2,color2,False,self.Tpiezas,nick2)
 
+            self.jugador1.wins = winsJ1
+            self.jugador2.wins = winsJ2
+
+            self.jugador1.errors = Errors1
+            self.jugador2.errors = Errors2
+            
             thread = threading.Thread(target=self.temporizador)
             thread2 = threading.Thread(target=self.cambioPorTiempo)
             thread3 = threading.Thread(target=self.winGame)
