@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1161</width>
-    <height>648</height>
+    <height>669</height>
    </rect>
   </property>
   <property name="baseSize">
@@ -24,9 +24,9 @@
     <property name="geometry">
      <rect>
       <x>310</x>
-      <y>40</y>
+      <y>30</y>
       <width>661</width>
-      <height>571</height>
+      <height>591</height>
      </rect>
     </property>
     <property name="rowCount">
@@ -63,10 +63,10 @@
    <widget class="QGroupBox" name="configPart">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>40</y>
+      <x>20</x>
+      <y>20</y>
       <width>271</width>
-      <height>571</height>
+      <height>601</height>
      </rect>
     </property>
     <property name="title">
@@ -425,8 +425,8 @@
    <widget class="QPushButton" name="helpButton">
     <property name="geometry">
      <rect>
-      <x>1070</x>
-      <y>10</y>
+      <x>1080</x>
+      <y>0</y>
       <width>71</width>
       <height>23</height>
      </rect>
@@ -439,9 +439,9 @@
     <property name="geometry">
      <rect>
       <x>980</x>
-      <y>40</y>
+      <y>30</y>
       <width>161</width>
-      <height>571</height>
+      <height>591</height>
      </rect>
     </property>
     <property name="title">
@@ -727,13 +727,26 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>530</y>
+       <y>550</y>
        <width>131</width>
        <height>23</height>
       </rect>
      </property>
      <property name="text">
       <string>Guardar Partida</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="nameSave">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>530</y>
+       <width>113</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Nuevo Juego</string>
      </property>
     </widget>
    </widget>

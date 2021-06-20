@@ -5,7 +5,10 @@ import random
 import threading
 import time
 import pydot
-from PyQt5.QtWidgets import (QMessageBox)
+from PyQt5.QtWidgets import (QFileDialog, QMessageBox)
+from xml.dom import minidom
+import xml.etree.cElementTree as ET
+
 #-------------------------------------------Partes de texto para el HTML-------------------------------------------
 startHTML = '<!DOCTYPE html><html lang="en" dir="ltr"><head><meta charset="utf-8"><title>Reporte</title><link rel="stylesheet" href="style.css" type="text/css"></head><body><div id="main-container"><table><thead><tr><th>Alias Jugadores</th><th>Color</th><th>Equivocaciones</th><th>Partidas Ganadas</th></tr></thead>'
 middleHTML = ''
@@ -275,6 +278,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.tablero.setRowCount(self.maxY)
             self.tablero.setColumnCount(self.maxX)
 
+            horizontal = self.tablero.horizontalHeader()   
+            vertical = self.tablero.verticalHeader()
+            for i in range(self.maxX):
+                horizontal.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+
+            for i in range(self.maxY):
+                vertical.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+                
             self.Tpiezas = int(self.totalPerPlayer.text())
 
             self.jugador1 = jugador(1,color1,True,self.Tpiezas,nick1)
@@ -303,6 +314,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             return "yellow"
         elif colorES == "Verde":
             return "green"
+    
+    def colorPlayerES(self,colorIN):
+        if colorIN == "blue":
+            return "Azul"
+        elif colorIN == "red":
+            return "Rojo"
+        elif colorIN == "yellow":
+            return "Amarillo"
+        elif colorIN == "green":
+            return "Verde"
     def __init__(self,*args, **kwargs):
         QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
         self.setupUi(self)
@@ -311,12 +332,170 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pasarTurno.clicked.connect(self.camiboJugador)
         self.newGameStart.clicked.connect(self.startGame)
         self.newReporte.clicked.connect(self.generarReporte)
+        self.openButton.clicked.connect(self.abrirArchivo)
+        self.saveButton.clicked.connect(self.guardarArchivo)
         self.imagenFigura(self.pieza)
         self.numPiezas.setText(str(self.jugador1.totalPiezas))
         self.playerTimer.setText(str(self.tiempo))
         self.intentos.setText(str(self.jugador1.intentosActuales))
         self.playerName.setText(self.jugador1.alias)
         
+    def abrirArchivo(self):
+        fileName = QFileDialog.getOpenFileName()
+        direc = fileName[0]
+        
+        documento = minidom.parse(direc)
+        matrizCompleta = documento.getElementsByTagName('imagen')
+        columnas = documento.getElementsByTagName('columnas')[0].firstChild.data
+        filas = documento.getElementsByTagName('filas')[0].firstChild.data
+        colorname1 = documento.getElementsByTagName('color1')[0].firstChild.data
+        colorname2 = documento.getElementsByTagName('color2')[0].firstChild.data
+        if direc != "":
+            
+            self.winMessage.setText("")
+
+            self.tablero.setRowCount(0)
+            self.tablero.setColumnCount(0)
+
+            color1 = self.colorPlayer(str(colorname1))
+            color2 = self.colorPlayer(str(colorname2))
+            
+            nick1 = str(colorname1)
+            nick2 = str(colorname2)
+
+            self.maxX = int(filas)
+            self.maxY = int(columnas)
+            
+            self.maxTiempo = 60
+
+            self.tablero.setRowCount(0)
+            self.tablero.setColumnCount(0)
+
+            self.tablero.setRowCount(self.maxY)
+            self.tablero.setColumnCount(self.maxX)
+        
+            horizontal = self.tablero.horizontalHeader()   
+            vertical = self.tablero.verticalHeader()
+            for i in range(self.maxX):
+                horizontal.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+
+            for i in range(self.maxY):
+                vertical.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+            
+            for elemento in matrizCompleta:
+                texto = elemento.firstChild.data
+
+            #separo el texto
+            for j in texto:
+                separacion = texto.split(" ")
+            for elem in separacion:
+                if elem == '':
+                    separacion.remove('')
+            
+            self.nodoPrincipal = mainNodo()
+            self.lCabeceras = listaCabeceras()
+            self.matriz = nodosEnMatriz()
+            self.pieza = random.randint(1,6)
+            self.imagenFigura(self.pieza)
+            self.playing = True
+            
+            for i in range(self.maxX):
+                self.lCabeceras.insertarX(self.nodoPrincipal,nodosX(i+1))
+
+            for i in range(int(self.maxY)):
+                self.lCabeceras.insertarY(self.nodoPrincipal,nodosY(i+1))  
+            
+            #Reccorro cada elemento
+            inicio = 0
+            while(inicio != int(filas)):
+                if(separacion[inicio] != ""):
+                    for c in range(int(columnas)):
+                        if(separacion[inicio][c] != "-"):
+                            if separacion[inicio][c] == "1":
+                                self.ingresarPintar(c,inicio," ",color1)
+                            elif separacion[inicio][c] == "2":
+                                self.ingresarPintar(c,inicio," ",color2)
+                            
+                            self.matriz.insertar(c+1,inicio+1,self.nodoPrincipal,nodos(separacion[inicio][c],c+1,inicio+1))
+                inicio+=1
+                
+            self.Tpiezas = 10
+
+            self.jugador1 = jugador(1,color1,True,self.Tpiezas,nick1)
+            self.jugador2 = jugador(2,color2,False,self.Tpiezas,nick2)
+
+            self.jugador1.wins = 0
+            self.jugador2.wins = 0
+
+            self.jugador1.errors = 0
+            self.jugador2.errors = 0
+            
+            thread = threading.Thread(target=self.temporizador)
+            thread2 = threading.Thread(target=self.cambioPorTiempo)
+            thread3 = threading.Thread(target=self.winGame)
+            
+            thread3.start()
+            thread.start()
+            thread2.start()
+    def guardarArchivo(self):
+        #Variable que almacenar el "Texto" de la matriz
+        matrizT = ''
+        #Recorro la matriz
+        inicioY = self.nodoPrincipal.down
+        while inicioY != None:
+            if inicioY.right == None:
+                for elm in range(self.maxX-1):
+                    matrizT += '-'
+                matrizT += '- '
+            else:
+                nodosI = inicioY.right
+                if nodosI.posX != 1:
+                    difI = nodosI.posX - 1
+                    Cinicial = 1
+                    while Cinicial <= difI:
+                        matrizT += '-'
+                        Cinicial+=1
+
+                while nodosI.right != None:
+                    pos1 = nodosI.posX
+                    pos2 = nodosI.right.posX
+                    matrizT += str(nodosI.data)
+                    mdif = pos2-pos1
+                    if mdif != 1:
+                        numEsp = 1
+                        while numEsp <= mdif-1:
+                            matrizT += '-'
+                            numEsp+=1
+                    nodosI = nodosI.right
+                matrizT += str(nodosI.data)
+
+                if nodosI.posX < self.maxX:
+                    dif2 = self.maxX-nodosI.posX
+                    Cinicial2 = 1
+                    while Cinicial2 <= dif2:
+                        matrizT+="-"
+                        Cinicial2+=1
+                matrizT+=' '
+            inicioY = inicioY.down
+        #Creacion de las primeras
+        raiz = ET.Element('matrices')
+        matriz = ET.SubElement(raiz,'matriz')
+        archivename = ET.SubElement(matriz,'nombre')
+        archivename.text = self.nameSave.text()
+        archiveN = self.nameSave.text()+'.xml'
+        numFilas = ET.SubElement(matriz,'filas')
+        numFilas.text = str(self.maxX)
+        numColumna = ET.SubElement(matriz,'columnas')
+        numColumna.text = str(self.maxY)
+        nomCol1 = ET.SubElement(matriz,'color1')
+        nomCol1.text = self.colorPlayerES(str(self.jugador1.color))
+        nomCol2 = ET.SubElement(matriz,'color2')
+        nomCol2.text = self.colorPlayerES(str(self.jugador2.color))
+        img = ET.SubElement(matriz,'imagen')
+        img.text = matrizT
+        data = ET.tostring(raiz)
+        documento = open(archiveN,"wb")
+        documento.write(data)
 
     def closeEvent(self, event):
         respuesta = QMessageBox.question(self, 'Cerrar Juego', '¿Quieres Salir del juego?',QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -358,9 +537,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         middleHTML = ''
         file = open('reporteHTML.html','w')
         #Datos Jugador1
-        middleHTML += '<tr>'+'<td>'+str(self.jugador1.alias)+'</td>'+'<td>'+str(self.jugador1.color)+'</td>'+'<td>'+str(self.jugador1.errors)+'</td>'+'<td>'+str(self.jugador1.wins)+'</td>'+'</tr>'
+        middleHTML += '<tr>'+'<td>'+str(self.jugador1.alias)+'</td>'+'<td>'+self.colorPlayerES(str(self.jugador1.color))+'</td>'+'<td>'+str(self.jugador1.errors)+'</td>'+'<td>'+str(self.jugador1.wins)+'</td>'+'</tr>'
         #Datos Jugador2
-        middleHTML += '<tr>'+'<td>'+str(self.jugador2.alias)+'</td>'+'<td>'+str(self.jugador2.color)+'</td>'+'<td>'+str(self.jugador2.errors)+'</td>'+'<td>'+str(self.jugador2.wins)+'</td>'+'</tr>'
+        middleHTML += '<tr>'+'<td>'+str(self.jugador2.alias)+'</td>'+'<td>'+self.colorPlayerES(str(self.jugador2.color))+'</td>'+'<td>'+str(self.jugador2.errors)+'</td>'+'<td>'+str(self.jugador2.wins)+'</td>'+'</tr>'
         middleHTML += '<img src="matriz.png">'
         text = startHTML + middleHTML +endHTML
         file.write(text)

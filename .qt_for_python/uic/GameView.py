@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'GameView.ui'
+# Form implementation generated from reading ui file 'c:\Users\csinc\Desktop\Archivos de Python\Proyecto\IPC2_Proyecto1_202000605\GameView.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -309,13 +309,3 @@ class Ui_MainWindow(object):
         self.intentos.setText(_translate("MainWindow", "0"))
         self.saveButton.setText(_translate("MainWindow", "Guardar Partida"))
         self.nameSave.setText(_translate("MainWindow", "Nuevo Juego"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
