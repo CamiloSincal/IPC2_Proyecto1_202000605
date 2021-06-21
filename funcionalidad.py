@@ -5,7 +5,7 @@ import random
 import threading
 import time
 import pydot
-from PyQt5.QtWidgets import (QFileDialog, QMessageBox)
+from PyQt5.QtWidgets import (QFileDialog, QInputDialog, QLineEdit, QMessageBox)
 from xml.dom import minidom
 import xml.etree.cElementTree as ET
 
@@ -350,6 +350,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         filas = documento.getElementsByTagName('filas')[0].firstChild.data
         colorname1 = documento.getElementsByTagName('color1')[0].firstChild.data
         colorname2 = documento.getElementsByTagName('color2')[0].firstChild.data
+        
         if direc != "":
             
             self.winMessage.setText("")
@@ -418,11 +419,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                             
                             self.matriz.insertar(c+1,inicio+1,self.nodoPrincipal,nodos(separacion[inicio][c],c+1,inicio+1))
                 inicio+=1
-                
-            self.Tpiezas = 10
+            
+            num1,okPressed1 = QInputDialog.getInt(self, nick1,"Cantidad de piezas restantes:", 0, 0, 100, 1)
+            num2,okPressed2 = QInputDialog.getInt(self, nick2,"Cantidad de piezas restantes:", 0, 0, 100, 1)
 
-            self.jugador1 = jugador(1,color1,True,self.Tpiezas,nick1)
-            self.jugador2 = jugador(2,color2,False,self.Tpiezas,nick2)
+            if okPressed1:
+                self.jugador1 = jugador(1,color1,True,num1,nick1)
+            
+            if okPressed2:
+                self.jugador2 = jugador(2,color2,False,num2,nick2)
 
             self.jugador1.wins = 0
             self.jugador2.wins = 0
@@ -848,7 +853,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if aux2.posY != int(posY):
                     return True
                 else:
-                    return False
+                    return aux2.data
         else:
             return False
     
@@ -980,6 +985,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             var5 = self.comprobarEspacio(posX+1,posY+3,self.nodoPrincipal)
             if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True:
                 return True
+                
         elif idFigura == 2:
             var1 = self.comprobarEspacio(posX+1,posY,self.nodoPrincipal)
             var2 = self.comprobarEspacio(posX+1,posY+1,self.nodoPrincipal)
