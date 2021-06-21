@@ -399,7 +399,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.pieza = random.randint(1,6)
             self.imagenFigura(self.pieza)
             self.playing = True
-            
+
             for i in range(self.maxX):
                 self.lCabeceras.insertarX(self.nodoPrincipal,nodosX(i+1))
 
@@ -423,6 +423,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             num1,okPressed1 = QInputDialog.getInt(self, nick1,"Cantidad de piezas restantes:", 0, 0, 100, 1)
             num2,okPressed2 = QInputDialog.getInt(self, nick2,"Cantidad de piezas restantes:", 0, 0, 100, 1)
 
+            x = 0
+            y = 0
+            
+            while x != self.maxX:
+                while y != self.maxY:
+                    for fig in range(6):
+                        self.comprobarFigura(x+1,y+1,fig+1)
+                        if self.comprobarFigura(x+1,y+1,fig+1) != True:
+                            self.agregarPuntosInCharge(self.comprobarFigura(x+1,y+1,fig+1))
+                            break
+                    y+=1
+                x += 1
+
             if okPressed1:
                 self.jugador1 = jugador(1,color1,True,num1,nick1)
             
@@ -442,6 +455,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             thread3.start()
             thread.start()
             thread2.start()
+            
     def guardarArchivo(self):
         #Variable que almacenar el "Texto" de la matriz
         matrizT = ''
@@ -904,6 +918,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             var11 = self.sideS(posX+2,posY+3,self.nodoPrincipal,jugador)
             if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True and var6 == True and var7 == True and var8 == True and var9 == True and var10 == True and var11 == True:
                 return True
+            
         elif idFigura == 2:
             var1 = self.sideS(posX+1,posY-1,self.nodoPrincipal,jugador)
             var2 = self.sideS(posX,posY,self.nodoPrincipal,jugador)
@@ -970,6 +985,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             var12 = self.sideS(posX,posY+5,self.nodoPrincipal,jugador)
             if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True and var6 == True and var7 == True and var8 == True and var9  and var10 == True and var11  and var12 == True:
                 return True
+
+    def agregarPuntosInCharge(self,player):
+        if player == 1:
+            self.jugador1.points +=1
+        elif player == 2:
+            self.jugador2.points +=1
+            
     def comprobarFigura(self,posX,posY,idFigura):
         var1 = True
         var2 = True
@@ -985,7 +1007,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             var5 = self.comprobarEspacio(posX+1,posY+3,self.nodoPrincipal)
             if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True:
                 return True
+            elif var1 !=True and var2 !=True and var3 !=True and var4 !=True and var5 !=True:
                 
+                return var1
         elif idFigura == 2:
             var1 = self.comprobarEspacio(posX+1,posY,self.nodoPrincipal)
             var2 = self.comprobarEspacio(posX+1,posY+1,self.nodoPrincipal)
@@ -994,6 +1018,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             var5 = self.comprobarEspacio(posX,posY+3,self.nodoPrincipal)
             if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True:
                 return True
+            elif var1 !=True and var2 !=True and var3 !=True and var4 !=True and var5 !=True:
+                return var1
+
         elif idFigura == 3:
             var1 = self.comprobarEspacio(posX,posY,self.nodoPrincipal)
             var2 = self.comprobarEspacio(posX+1,posY,self.nodoPrincipal)
@@ -1001,6 +1028,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             var4 = self.comprobarEspacio(posX+3,posY,self.nodoPrincipal)
             if var1 == True and var2 == True and var3 == True and var4 == True:
                 return True
+            elif var1 !=True and var2 !=True and var3 !=True and var4 !=True:
+                return var1
+
         elif idFigura == 4:
             var1 = self.comprobarEspacio(posX,posY,self.nodoPrincipal)
             var2 = self.comprobarEspacio(posX,posY+1,self.nodoPrincipal)
@@ -1008,6 +1038,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             var4 = self.comprobarEspacio(posX+1,posY+1,self.nodoPrincipal)
             if var1 == True and var2 == True and var3 == True and var4 == True:
                 return True
+            elif var1 !=True and var2 !=True and var3 !=True and var4 !=True:
+                return var1
+
         elif idFigura == 5:
             var1 = self.comprobarEspacio(posX,posY+1,self.nodoPrincipal)
             var2 = self.comprobarEspacio(posX+1,posY,self.nodoPrincipal)
@@ -1017,6 +1050,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             var6 = self.comprobarEspacio(posX+3,posY+1,self.nodoPrincipal)
             if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True and var6 == True:
                 return True
+            elif var1 !=True and var2 !=True and var3 !=True and var4 !=True and var5 !=True and var6 !=True:
+                return var1
+
         elif idFigura == 6:
             var1 = self.comprobarEspacio(posX,posY,self.nodoPrincipal)
             var2 = self.comprobarEspacio(posX,posY+1,self.nodoPrincipal)
@@ -1025,6 +1061,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             var5 = self.comprobarEspacio(posX,posY+4,self.nodoPrincipal)
             if var1 == True and var2 == True and var3 == True and var4 == True and var5 == True:
                 return True
+            elif var1 !=True and var2 !=True and var3 !=True and var4 !=True and var5 !=True:
+                return var1
 
     def figuras(self,posIX,posIY,idFigura,color,jugador,player):
         if idFigura == 1:
