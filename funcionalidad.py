@@ -867,7 +867,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if aux2.posY != int(posY):
                     return True
                 else:
-                    return aux2.data
+                    return False
         else:
             return False
     
